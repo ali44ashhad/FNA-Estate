@@ -158,7 +158,7 @@ export const LoginPage = () => {
             </Link>
           </p>
         </div>
-        <p className="text-center text-sm text-slate-600 my-6 px-6 space-y-1">
+        {/* <p className="text-center text-sm text-slate-600 my-6 px-6 space-y-1">
   <span className="block">
     <span className="font-bold">Admin:</span> admin@premiumestate.com / admin123
   </span>
@@ -168,7 +168,7 @@ export const LoginPage = () => {
   <span className="block">
     <span className="font-bold">Buyer:</span> rahul.buyer@premiumestate.com / buyer123
   </span>
-</p>
+</p> */}
 
       </div>
     </div>
