@@ -1,55 +1,52 @@
 const User = require('../models/User');
 const Property = require('../models/Property');
-const Seller = require('../models/Seller');
 const Enquiry = require('../models/Enquiry');
+const SellerLead = require('../models/SellerLead');
 const { generateToken } = require('../config/jwt');
 
 // Onboard a new seller
 exports.onboardSeller = async (req, res) => {
   try {
-    const { name, email, phone, password, companyName, companyDescription, registrationNumber, businessType, websiteUrl, officeAddress } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      password,
+      companyName,
+      companyDescription,
+      businessType,
+      officeAddress,
+    } = req.body;
 
-    // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    // Create seller user
-    const sellerUser = new User({
+    const sellerUser = await User.create({
       name,
       email,
       phone,
       password,
       role: 'seller',
       isActive: true,
-    });
-
-    await sellerUser.save();
-
-    // Create seller profile
-    const seller = new Seller({
-      userId: sellerUser._id,
       companyName,
       companyDescription,
-      registrationNumber,
       businessType,
-      websiteUrl,
       officeAddress,
       onboardedBy: req.user.id,
-      isActive: true,
     });
-
-    await seller.save();
 
     res.status(201).json({
       success: true,
       message: 'Seller onboarded successfully',
       seller: {
-        id: sellerUser._id,
+        _id: sellerUser._id,
         name: sellerUser.name,
         email: sellerUser.email,
-        companyName: seller.companyName,
+        phone: sellerUser.phone,
+        companyName: sellerUser.companyName,
+        isActive: sellerUser.isActive,
       },
     });
   } catch (error) {
@@ -131,10 +128,116 @@ exports.rejectProperty = async (req, res) => {
   }
 };
 
+// Admin: edit any listing (typically pending) before approve/reject
+exports.updateProperty = async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
+
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    const {
+      title,
+      description,
+      propertyType,
+      listingType,
+      location,
+      pricing,
+      propertyDetails,
+      financials,
+      businessDetails,
+      amenities,
+      media,
+      sellerId,
+      status,
+      isVerified,
+      isPremium,
+      isHot,
+    } = req.body;
+
+    if (title !== undefined) property.title = title;
+    if (description !== undefined) property.description = description;
+    if (propertyType !== undefined) property.propertyType = propertyType;
+    if (listingType !== undefined) property.listingType = listingType;
+    if (location !== undefined) property.location = { ...property.location?.toObject?.() || property.location, ...location };
+    if (pricing !== undefined) {
+      property.pricing = {
+        ...property.pricing?.toObject?.() || property.pricing,
+        ...pricing,
+        finalPrice: pricing.finalPrice ?? pricing.basePrice ?? property.pricing?.finalPrice,
+      };
+    }
+    if (propertyDetails !== undefined) {
+      property.propertyDetails = {
+        ...property.propertyDetails?.toObject?.() || property.propertyDetails,
+        ...propertyDetails,
+      };
+    }
+    if (financials !== undefined) {
+      property.financials = {
+        ...property.financials?.toObject?.() || property.financials,
+        ...financials,
+      };
+    }
+    if (businessDetails !== undefined) {
+      property.businessDetails = {
+        ...property.businessDetails?.toObject?.() || property.businessDetails,
+        ...businessDetails,
+      };
+    }
+    if (amenities !== undefined) {
+      property.amenities = {
+        ...property.amenities?.toObject?.() || property.amenities,
+        ...amenities,
+      };
+    }
+    if (media !== undefined) {
+      property.media = {
+        ...property.media?.toObject?.() || property.media,
+        ...media,
+      };
+    }
+
+    if (sellerId) {
+      const seller = await User.findOne({ _id: sellerId, role: 'seller' });
+      if (!seller) {
+        return res.status(400).json({ message: 'Selected seller not found' });
+      }
+      property.createdBy = seller._id;
+    }
+
+    // Keep pending by default when editing for approval; allow optional status override
+    if (status && ['Pending Approval', 'Approved', 'Rejected', 'Sold'].includes(status)) {
+      property.status = status;
+      if (status === 'Approved') {
+        property.approvedBy = req.user.id;
+      }
+    }
+
+    if (isVerified !== undefined) property.isVerified = Boolean(isVerified);
+    if (isPremium !== undefined) property.isPremium = Boolean(isPremium);
+    if (isHot !== undefined) property.isHot = Boolean(isHot);
+
+    property.updatedAt = new Date();
+    await property.save();
+
+    const populated = await Property.findById(property._id).populate('createdBy', 'name email');
+
+    res.status(200).json({
+      success: true,
+      message: 'Listing updated successfully',
+      property: populated,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Get all sellers
 exports.getSellers = async (req, res) => {
   try {
-    const sellers = await Seller.find().populate('userId', 'name email phone isActive');
+    const sellers = await User.find({ role: 'seller' }).sort('-createdAt');
 
     res.status(200).json({
       success: true,
@@ -149,7 +252,7 @@ exports.getSellers = async (req, res) => {
 // Deactivate/activate seller
 exports.toggleSellerStatus = async (req, res) => {
   try {
-    const seller = await Seller.findById(req.params.id).populate('userId');
+    const seller = await User.findOne({ _id: req.params.id, role: 'seller' });
 
     if (!seller) {
       return res.status(404).json({ message: 'Seller not found' });
@@ -158,13 +261,47 @@ exports.toggleSellerStatus = async (req, res) => {
     seller.isActive = !seller.isActive;
     await seller.save();
 
-    // Also update user status
-    const user = await User.findByIdAndUpdate(seller.userId._id, { isActive: seller.isActive });
-
     res.status(200).json({
       success: true,
       message: `Seller ${seller.isActive ? 'activated' : 'deactivated'} successfully`,
       seller,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get all regular users (role: user)
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find({ role: 'user' }).sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      users,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Deactivate/activate user
+exports.toggleUserStatus = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.params.id, role: 'user' });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`,
+      user,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -195,10 +332,11 @@ exports.getDashboardStats = async (req, res) => {
     const totalListings = await Property.countDocuments({ status: 'Approved' });
     const pendingListings = await Property.countDocuments({ status: 'Pending Approval' });
     const totalEnquiries = await Enquiry.countDocuments();
-    const totalSellers = await Seller.countDocuments({ isActive: true });
-    const activeSellers = await Seller.countDocuments({ isActive: true });
+    const totalSellers = await User.countDocuments({ role: 'seller' });
+    const activeSellers = await User.countDocuments({ role: 'seller', isActive: true });
     const totalUsers = await User.countDocuments({ role: 'user' });
-    
+    const newSellerLeads = await SellerLead.countDocuments({ status: 'New' });
+
     // Calculate total revenue from approved properties
     const revenueResult = await Property.aggregate([
       { $match: { status: 'Approved' } },
@@ -214,8 +352,9 @@ exports.getDashboardStats = async (req, res) => {
         pendingProperties: pendingListings,
         totalSellers,
         activeSellers,
-        totalBuyers: totalUsers,
+        totalUsers,
         totalEnquiries,
+        newSellerLeads,
         totalRevenue,
       },
     });

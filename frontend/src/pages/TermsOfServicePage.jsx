@@ -2,217 +2,207 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
-  Shield,
+  ShieldCheck,
   FileText,
   AlertCircle,
-  Globe,
   Scale,
   Lock,
   UserCheck,
   RefreshCw,
   Mail,
   Phone,
-  Home,
+  Store,
+  CheckCircle,
   ChevronRight,
-  Award,
-  CheckCircle
+  Handshake,
 } from 'lucide-react';
+
+const RELATED_LINKS = [
+  { to: '/privacy-policy', label: 'Privacy Policy', icon: Lock },
+  { to: '/cookie-policy', label: 'Cookie Policy', icon: ShieldCheck },
+  { to: '/disclaimer', label: 'Disclaimer', icon: AlertCircle },
+];
 
 export const TermsOfServicePage = () => {
   const sections = [
     {
-      icon: <FileText className="w-6 h-6" />,
-      title: "1. Agreement to Terms",
-      content: "By accessing and using FNAEstate, you accept and agree to be bound by these Terms of Service. These terms constitute a legally binding agreement between you and FNAEstate Technologies Private Limited. If you do not agree with any part of these terms, you may not access our services.",
-      highlight: true
+      icon: FileText,
+      title: '1. Agreement to Terms',
+      content:
+        'By accessing and using Udyam Mittar, you accept and agree to be bound by these Terms of Service. These terms form a legally binding agreement between you and Udyam Mittar. If you do not agree with any part of these terms, you may not use our platform.',
     },
     {
-      icon: <Scale className="w-6 h-6" />,
-      title: "2. Premium Services License",
-      content: "FNAEstate grants you a limited, non-exclusive, non-transferable, revocable license to access and use our premium real estate services for personal, non-commercial purposes. This license specifically prohibits:",
+      icon: Scale,
+      title: '2. Platform Licence',
+      content:
+        'Udyam Mittar grants you a limited, non-exclusive, non-transferable, revocable licence to access and use our business exchange services for personal and legitimate commercial purposes. This licence specifically prohibits:',
       points: [
-        "Commercial use or resale of our services",
-        "Reverse engineering or decompiling our platform",
-        "Data scraping, mining, or extraction",
-        "Unauthorized access to our systems",
-        "Violation of RERA or other real estate regulations"
-      ]
+        'Misuse or resale of our platform services',
+        'Reverse engineering or decompiling our platform',
+        'Data scraping, mining, or unauthorised extraction',
+        'Unauthorised access to our systems',
+        'Posting false, misleading, or fraudulent business listings',
+      ],
     },
     {
-      icon: <UserCheck className="w-6 h-6" />,
-      title: "3. Account Registration & Verification",
-      content: "To access premium features, you must create an account with accurate and complete information. We reserve the right to verify your identity through KYC procedures. Premium accounts require additional verification for property listing and investment features.",
-      highlight: false
+      icon: UserCheck,
+      title: '3. Account Registration',
+      content:
+        'To access certain features, you must create an account with accurate and complete information. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.',
     },
     {
-      icon: <Shield className="w-6 h-6" />,
-      title: "4. Premium Property Listings",
-      content: "All property listings undergo our 25-point verification process. Sellers must provide accurate information and necessary documentation. FNAEstate acts as a technology platform and does not guarantee property conditions or ownership titles.",
+      icon: Store,
+      title: '4. Business Listings',
+      content:
+        'All business listings are subject to verification before approval. Sellers must provide accurate details about their business. Udyam Mittar acts as a marketplace platform and does not guarantee business conditions, financial performance, or ownership titles.',
       points: [
-        "Listings must comply with RERA regulations",
-        "Accurate pricing and property details required",
-        "Professional photography standards apply",
-        "Disclosure of any property disputes mandatory"
-      ]
+        'Listings must be truthful and complete',
+        'Accurate pricing and business details are required',
+        'Disclosure of material issues is mandatory',
+        'We may reject or remove non-compliant listings',
+      ],
     },
     {
-      icon: <AlertCircle className="w-6 h-6" />,
-      title: "5. Disclaimer & Limitations",
-      content: "Our services are provided 'as is' without warranties of any kind. FNAEstate is not liable for property transactions between users. We recommend independent legal and property verification before any transaction.",
-      highlight: true
+      icon: Handshake,
+      title: '5. Enquiries & Transactions',
+      content:
+        'Enquiries submitted through the platform are shared with relevant sellers. Any sale, purchase, or transfer agreement is solely between the buyer and seller. Udyam Mittar is not a party to these transactions and recommends independent due diligence before closing any deal.',
     },
     {
-      icon: <Globe className="w-6 h-6" />,
-      title: "6. Intellectual Property Rights",
-      content: "All content, logos, trademarks, and proprietary technology on FNAEstate are owned by FNAEstate Technologies Private Limited. Unauthorized use of our intellectual property is strictly prohibited.",
-      highlight: false
+      icon: AlertCircle,
+      title: '6. Disclaimer & Limitations',
+      content:
+        'Our services are provided "as is" without warranties of any kind. Udyam Mittar is not liable for business transactions between users. Independent legal and financial verification is strongly recommended before any purchase or sale.',
     },
     {
-      icon: <Lock className="w-6 h-6" />,
-      title: "7. Data Privacy & Security",
-      content: "We adhere to strict data protection standards in compliance with Indian data privacy laws. Your personal information is protected by enterprise-grade security measures. Refer to our Privacy Policy for detailed information.",
-      highlight: true
+      icon: Lock,
+      title: '7. Intellectual Property',
+      content:
+        'All content, logos, trademarks, and proprietary technology on Udyam Mittar are owned by Udyam Mittar. Unauthorised use of our intellectual property is strictly prohibited.',
     },
     {
-      icon: <RefreshCw className="w-6 h-6" />,
-      title: "8. Modifications & Updates",
-      content: "We reserve the right to modify these terms at any time. Continued use of our services constitutes acceptance of updated terms. Major changes will be notified via email or platform notifications.",
-      highlight: false
+      icon: Lock,
+      title: '8. Privacy & Data Security',
+      content:
+        'We protect your personal information in accordance with applicable data protection laws. For full details on how we collect, use, and safeguard your data, please refer to our Privacy Policy.',
     },
     {
-      icon: <Award className="w-6 h-6" />,
-      title: "9. Premium Subscription Terms",
-      content: "Premium subscription services are billed according to selected plans. We offer a 7-day satisfaction guarantee for new subscriptions. Cancellations must be made at least 24 hours before renewal.",
-      points: [
-        "Auto-renewal for premium subscriptions",
-        "No refunds for partial periods",
-        "Subscription plans are non-transferable",
-        "Enterprise plans require custom agreements"
-      ]
+      icon: RefreshCw,
+      title: '9. Changes to Terms',
+      content:
+        'We reserve the right to modify these terms at any time. Continued use of our services after changes are posted constitutes acceptance of the updated terms. Significant changes will be communicated via email or platform notifications where appropriate.',
     },
     {
-      icon: <Scale className="w-6 h-6" />,
-      title: "10. Governing Law & Dispute Resolution",
-      content: "These terms are governed by Indian law. Any disputes shall be subject to the exclusive jurisdiction of courts in Mumbai, Maharashtra. We encourage dispute resolution through mediation before legal proceedings.",
-      highlight: true
-    }
+      icon: Scale,
+      title: '10. Governing Law',
+      content:
+        'These terms are governed by the laws of India. Disputes arising from these terms or your use of Udyam Mittar shall be subject to the exclusive jurisdiction of the courts in Chandigarh.',
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
-        <title>Terms of Service | FNAEstate - Terms & Conditions</title>
-        <meta name="description" content="Read FNAEstate's terms of service and conditions. Understand your rights and obligations when using our premium real estate platform. Legal terms and user agreement." />
-        <meta name="keywords" content="terms of service, terms and conditions, user agreement, legal terms, platform terms, service agreement" />
-        <link rel="canonical" href="https://fnaestate.com/terms-of-service" />
-        <meta property="og:title" content="Terms of Service | FNAEstate" />
-        <meta property="og:description" content="Read FNAEstate's terms of service and user agreement." />
-        <meta property="og:url" content="https://fnaestate.com/terms-of-service" />
+        <title>Terms of Service | Udyam Mittar</title>
+        <meta
+          name="description"
+          content="Read Udyam Mittar's terms of service. Understand your rights and obligations when using our Tricity business exchange platform."
+        />
+        <meta
+          name="keywords"
+          content="terms of service, terms and conditions, user agreement, Udyam Mittar, business exchange"
+        />
+        <link rel="canonical" href="https://udyammittar.com/terms-of-service" />
+        <meta property="og:title" content="Terms of Service | Udyam Mittar" />
+        <meta
+          property="og:description"
+          content="Read Udyam Mittar's terms of service and user agreement."
+        />
+        <meta property="og:url" content="https://udyammittar.com/terms-of-service" />
         <meta property="og:type" content="website" />
         <meta name="robots" content="noindex, follow" />
       </Helmet>
-      {/* Premium Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg"></div>
-        <div className="relative max-w-6xl mx-auto px-4 py-20">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-full px-6 py-3 mb-6">
-              <Shield className="w-5 h-5 text-amber-400" />
-              <span className="text-sm font-medium">LEGAL DOCUMENTATION</span>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-                Terms of Service
-              </span>
-            </h1>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
-              FNAEstate Technologies Private Limited - Governing the use of our premium real estate platform
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-sm">
-              <div className="flex items-center gap-2 text-slate-300">
-                <FileText className="w-4 h-4" />
-                <span>Last updated: December 26, 2025</span>
-              </div>
-              <div className="h-4 w-px bg-slate-700 hidden sm:block"></div>
-              <div className="flex items-center gap-2 text-slate-300">
-                <Award className="w-4 h-4" />
-                <span>RERA Compliant: A123456789</span>
-              </div>
-              <div className="h-4 w-px bg-slate-700 hidden sm:block"></div>
-              <div className="flex items-center gap-2 text-slate-300">
-                <CheckCircle className="w-4 h-4" />
-                <span>ISO 27001 Certified</span>
-              </div>
-            </div>
+
+      {/* Hero */}
+      <section className="bg-brand-800 text-white">
+        <div className="mx-auto max-w-5xl px-4 py-14 text-center lg:px-8 lg:py-16">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold">
+            <ShieldCheck className="h-4 w-4" />
+            Legal Documentation
+          </span>
+          <h1 className="mt-5 text-4xl font-extrabold lg:text-5xl">Terms of Service</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-brand-100 lg:text-base">
+            These terms govern your use of Udyam Mittar, Tricity&apos;s trusted platform for buying
+            and selling running businesses.
+          </p>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-brand-100">
+            <span className="inline-flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Last updated: July 29, 2026
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Clear &amp; Transparent
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              User Protection First
+            </span>
           </div>
-          
-          {/* Quick Nav */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <Link to="/privacy-policy" className="flex border border-slate-700 items-center justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 transition-colors group">
-              <div className="flex items-center gap-3">
-                <Lock className="w-5 h-5 text-amber-400" />
-                <span className="font-medium">Privacy Policy</span>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition-colors" />
-            </Link>
-            <Link to="/cookie-policy" className="flex items-center border border-slate-700 justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 transition-colors group">
-              <div className="flex items-center gap-3">
-                <Shield className="w-5 h-5 text-amber-400" />
-                <span className="font-medium">Cookie Policy</span>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition-colors" />
-            </Link>
-            <Link to="/disclaimer" className="flex items-center border border-slate-700 justify-between p-4 bg-slate-800/50 rounded-xl hover:bg-slate-800 transition-colors group">
-              <div className="flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-400" />
-                <span className="font-medium">Disclaimer</span>
-              </div>
-              <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition-colors" />
-            </Link>
+
+          {/* Quick links */}
+          <div className="mx-auto mt-10 grid max-w-3xl gap-3 sm:grid-cols-3">
+            {RELATED_LINKS.map(({ to, label, icon: Icon }) => (
+              <Link
+                key={to}
+                to={to}
+                className="group flex items-center justify-between rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-white/15"
+              >
+                <span className="flex items-center gap-2">
+                  <Icon className="h-4 w-4 text-brand-200" />
+                  {label}
+                </span>
+                <ChevronRight className="h-4 w-4 text-brand-200 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 py-16">
-        <div className="mb-12 bg-white rounded-2xl border border-slate-200 p-8 shadow-lg">
-          <div className="flex items-center gap-3 mb-4">
-            <Home className="w-6 h-6 text-amber-600" />
+      <div className="mx-auto max-w-5xl px-4 py-12 lg:px-8">
+        <div className="mb-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+          <div className="mb-4 flex items-center gap-3">
+            <Store className="h-6 w-6 text-brand-700" />
             <h2 className="text-2xl font-bold text-slate-900">Important Notice</h2>
           </div>
-          <p className="text-slate-700 mb-4">
-            These Terms of Service govern your use of FNAEstate's premium real estate platform. 
-            By accessing our services, you acknowledge that you have read, understood, and agree to 
-            be bound by these terms. These terms constitute a legal agreement between you and 
-            FNAEstate Technologies Private Limited.
+          <p className="text-slate-700">
+            These Terms of Service govern your use of Udyam Mittar, Tricity&apos;s trusted business
+            exchange platform. By accessing our services, you acknowledge that you have read,
+            understood, and agree to be bound by these terms.
           </p>
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <AlertCircle className="w-4 h-4" />
-            <span>For investment properties exceeding ₹5 crore, additional due diligence is recommended.</span>
-          </div>
         </div>
 
-        {/* Terms Sections */}
-        <div className="space-y-6">
-          {sections.map((section, index) => (
+        <div className="space-y-5">
+          {sections.map(({ icon: Icon, title, content, points }) => (
             <div
-              key={index}
-              className={`bg-white rounded-2xl border ${section.highlight ? 'border-amber-200' : 'border-slate-200'} p-8 shadow-sm hover:shadow-lg transition-shadow`}
+              key={title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md lg:p-8"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className={`p-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 `}>
-                  {section.icon}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">{section.title}</h3>
-                  <p className="text-slate-700 mb-4">{section.content}</p>
-                  
-                  {section.points && (
-                    <ul className="space-y-3 mt-4">
-                      {section.points.map((point, idx) => (
-                        <li key={idx} className="flex items-start gap-3 text-slate-700">
-                          <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div className="flex items-start gap-4">
+                <span className="shrink-0 rounded-lg bg-brand-gradient p-2.5 text-white">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xl font-bold text-slate-900">{title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-700">{content}</p>
+
+                  {points && (
+                    <ul className="mt-4 space-y-2">
+                      {points.map((point) => (
+                        <li key={point} className="flex items-start gap-3 text-sm text-slate-700">
+                          <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
                           <span>{point}</span>
                         </li>
                       ))}
@@ -220,73 +210,65 @@ export const TermsOfServicePage = () => {
                   )}
                 </div>
               </div>
-              
-              {section.highlight && (
-                <div className="mt-6 pt-6 border-t border-amber-100">
-                  <div className="flex items-center gap-2 text-sm text-amber-700 font-medium">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>Important: This section contains critical legal information.</span>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>
 
-        {/* Contact Section */}
-        <div className="mt-16 bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-10 text-white">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+        {/* Contact */}
+        <div className="mt-12 rounded-2xl bg-brand-gradient p-8 text-white lg:p-10">
+          <div className="grid gap-8 md:grid-cols-2 md:items-center">
             <div>
-              <h3 className="text-3xl font-bold mb-4">Legal Inquiries</h3>
-              <p className="text-slate-300 mb-6">
-                For legal questions or clarifications regarding our Terms of Service, 
-                please contact our legal department. We respond to all legal inquiries 
-                within 2-3 business days.
+              <h3 className="text-2xl font-extrabold">Legal Inquiries</h3>
+              <p className="mt-3 text-sm leading-relaxed text-brand-100">
+                For questions or clarifications regarding these Terms of Service, please contact our
+                legal team. We aim to respond within 2–3 business days.
               </p>
-              <div className="flex items-center gap-3 text-sm text-slate-400">
-                <Award className="w-4 h-4" />
-                <span>All communications are confidential and protected by attorney-client privilege.</span>
-              </div>
             </div>
-            
-            <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-              <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Mail className="w-5 h-5 text-amber-400" />
-                Contact Legal Department
+
+            <div className="rounded-xl bg-white/10 p-6">
+              <h4 className="mb-4 flex items-center gap-2 text-lg font-bold">
+                <Mail className="h-5 w-5 text-brand-200" />
+                Contact
               </h4>
-              <div className="space-y-4">
+              <div className="space-y-4 text-sm">
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Email</div>
-                  <a href="mailto:legal@FNAEstate.com" className="text-amber-400 hover:text-amber-300 font-medium">
-                    legal@FNAEstate.com
+                  <div className="mb-1 text-brand-200">Email</div>
+                  <a
+                    href="mailto:legal@udyammittar.com"
+                    className="font-semibold text-white hover:underline"
+                  >
+                    legal@udyammittar.com
                   </a>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Phone</div>
-                  <a href="tel:+919876543210" className="text-amber-400 hover:text-amber-300 font-medium">
-                    +91 98765 43210 (Legal Dept.)
+                  <div className="mb-1 text-brand-200">Phone</div>
+                  <a
+                    href="tel:+919876543210"
+                    className="inline-flex items-center gap-2 font-semibold text-white hover:underline"
+                  >
+                    <Phone className="h-4 w-4" />
+                    +91 98765 43210
                   </a>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Registered Address</div>
-                  <div className="text-slate-300">
-                    Level 42, One World Trade<br />
-                    Mumbai, Maharashtra 400001<br />
-                    CIN: U74999MH2025PTC123456
-                  </div>
+                  <div className="mb-1 text-brand-200">Service Area</div>
+                  <p className="text-brand-50">
+                    Chandigarh, Mohali &amp; Panchkula
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Acceptance Section */}
-        <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 rounded-full px-8 py-4">
-            <CheckCircle className="w-6 h-6 text-amber-600" />
-            <div className="text-left">
-              <p className="font-bold text-slate-900">By using FNAEstate, you acknowledge and accept these Terms of Service.</p>
-              <p className="text-sm text-slate-600">Last updated: December 26, 2025 • Version 3.1</p>
+        <div className="mt-8 text-center">
+          <div className="inline-flex items-start gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-5 py-4 text-left sm:items-center">
+            <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-brand-700 sm:mt-0" />
+            <div>
+              <p className="text-sm font-bold text-slate-900">
+                By using Udyam Mittar, you acknowledge and accept these Terms of Service.
+              </p>
+              <p className="mt-1 text-xs text-slate-600">Last updated: July 29, 2026</p>
             </div>
           </div>
         </div>

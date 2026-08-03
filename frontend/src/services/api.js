@@ -24,6 +24,9 @@ export const authService = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   getCurrentUser: () => api.get('/auth/me'),
+  updateProfile: (data) => api.patch('/auth/me', data),
+  changePassword: (data) => api.patch('/auth/me/password', data),
+  getPlatformContact: () => api.get('/auth/contact'),
 };
 
 // Property APIs
@@ -34,13 +37,36 @@ export const propertyService = {
   createProperty: (data) => api.post('/properties', data),
   getSellerProperties: () => api.get('/properties/seller/my-properties'),
   editProperty: (id, data) => api.put(`/properties/${id}`, data),
+  uploadImages: (files) => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+    return api.post('/upload/images', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // Enquiry APIs
 export const enquiryService = {
   submitEnquiry: (data) => api.post('/enquiries', data),
   getEnquiries: (filters) => api.get('/enquiries', { params: filters }),
+  getMyEnquiries: () => api.get('/enquiries/mine'),
   updateEnquiryStatus: (id, data) => api.patch(`/enquiries/${id}`, data),
+};
+
+// Wishlist APIs
+export const wishlistService = {
+  getWishlist: () => api.get('/wishlist'),
+  getWishlistIds: () => api.get('/wishlist/ids'),
+  addToWishlist: (propertyId) => api.post(`/wishlist/${propertyId}`),
+  removeFromWishlist: (propertyId) => api.delete(`/wishlist/${propertyId}`),
+};
+
+// Seller lead APIs (Sell Business form)
+export const sellerLeadService = {
+  submit: (data) => api.post('/seller-leads', data),
+  getAll: () => api.get('/seller-leads'),
+  update: (id, data) => api.patch(`/seller-leads/${id}`, data),
 };
 
 // Admin APIs
@@ -48,10 +74,13 @@ export const adminService = {
   onboardSeller: (data) => api.post('/admin/sellers/onboard', data),
   getSellers: () => api.get('/admin/sellers'),
   toggleSellerStatus: (id) => api.patch(`/admin/sellers/${id}/toggle-status`),
+  getUsers: () => api.get('/admin/users'),
+  toggleUserStatus: (id) => api.patch(`/admin/users/${id}/toggle-status`),
   getPendingProperties: () => api.get('/admin/properties/pending'),
   getAllProperties: () => api.get('/admin/properties'),
   approveProperty: (id, data) => api.patch(`/admin/properties/${id}/approve`, data),
   rejectProperty: (id, data) => api.patch(`/admin/properties/${id}/reject`, data),
+  updateProperty: (id, data) => api.put(`/admin/properties/${id}`, data),
   getDashboardStats: () => api.get('/admin/stats'),
   getRecentEnquiries: () => api.get('/enquiries'),
 };

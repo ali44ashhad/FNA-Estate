@@ -1,22 +1,87 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { propertyService } from '../services/api';
 import { PropertyCard } from '../components/PropertyCard';
 import { Loading } from '../components/Loading';
-import { 
-  Search, 
-  Filter, 
-  X, 
-  MapPin, 
-  Home, 
-  DollarSign,
+import {
+  BUSINESS_CATEGORIES,
+  INVESTMENT_RANGES,
+  PROFIT_RANGES,
+  TRICITY_LOCATIONS,
+  formatINR,
+  getCategoryLabel,
+} from '../utils/business';
+import {
+  Search,
+  Filter,
+  X,
+  MapPin,
+  Store,
+  IndianRupee,
   Grid,
   List,
+  ShieldCheck,
   Building2,
-  Sparkles,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  Handshake,
+  TrendingUp,
 } from 'lucide-react';
+
+const PAGE_SIZE = 9;
+
+const HERO_IMAGE =
+  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop';
+
+const QUICK_FILTERS = [
+  { key: 'Restaurant', label: 'Restaurants & Cafes', icon: Store },
+  { key: 'Shop', label: 'Retail Shops', icon: Building2 },
+  { key: 'Factory', label: 'Manufacturing', icon: TrendingUp },
+  { key: 'Running Business', label: 'Running Business', icon: Handshake },
+];
+
+// Categories where room counts are meaningful; the rest are commercial spaces.
+const ROOM_BASED_TYPES = ['Pg', 'Hotel'];
+
+const EMPTY_FILTERS = {
+  city: '',
+  propertyType: '',
+  listingType: '',
+  minPrice: '',
+  maxPrice: '',
+  minProfit: '',
+  bedrooms: '',
+  bathrooms: '',
+  furnished: '',
+};
+
+const inputClass =
+  'w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700 transition focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-100';
+
+const FilterGroup = ({ icon: Icon, label, children }) => (
+  <div>
+    <label className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      {Icon && <Icon className="h-3 w-3 text-slate-400" />}
+      {label}
+    </label>
+    {children}
+  </div>
+);
+
+const HeroStat = ({ icon: Icon, value, label }) => (
+  <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm">
+    <span className="rounded-lg bg-brand-50 p-2 text-brand-700">
+      <Icon className="h-4 w-4" />
+    </span>
+    <div>
+      <div className="text-lg font-bold leading-none text-slate-900">{value}</div>
+      <div className="mt-1 text-xs font-medium text-slate-500">{label}</div>
+    </div>
+  </div>
+);
 
 export const PropertiesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,31 +92,21 @@ export const PropertiesPage = () => {
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(true);
+  const [currentPage, setCurrentPage] = useState(
+    Math.max(1, Number(searchParams.get('page')) || 1)
+  );
   const [filters, setFilters] = useState({
     city: searchParams.get('city') || '',
     propertyType: searchParams.get('propertyType') || '',
     listingType: searchParams.get('listingType') || '',
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
+    minProfit: searchParams.get('minProfit') || '',
     bedrooms: searchParams.get('bedrooms') || '',
     bathrooms: searchParams.get('bathrooms') || '',
     furnished: searchParams.get('furnished') || '',
   });
 
-  const propertyTypes = [
-    { value: 'Factory', label: 'Factory', icon: '🏭' },          
-    { value: 'Warehouse', label: 'Warehouse', icon: '📦' },     
-    { value: 'Office', label: 'Office', icon: '🏢' },           
-    { value: 'Shop', label: 'Shop', icon: '🛍️' },               
-    { value: 'Hotel', label: 'Hotel', icon: '🏨' },             
-    { value: 'Industrial', label: 'Industrial', icon: '⚙️' },     
-    { value: 'Cafe', label: 'Cafe', icon: '☕' },                
-    { value: 'Restaurant', label: 'Restaurant', icon: '🍽️' },   
-    { value: 'Pg', label: 'PG', icon: '🛏️' },                   
-    { value: 'Running Business', label: 'Running Business', icon: '📈' }  
-  ];
-
-  // Fetch stats on mount
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -64,141 +119,102 @@ export const PropertiesPage = () => {
     fetchStats();
   }, []);
 
-  // Fetch properties when filters or sort change
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError('');
-        
-        // Build filter object from URL params
+
         const filterParams = {};
-        if (searchParams.get('city')) filterParams.city = searchParams.get('city');
-        if (searchParams.get('propertyType')) filterParams.propertyType = searchParams.get('propertyType');
-        if (searchParams.get('listingType')) filterParams.listingType = searchParams.get('listingType');
-        if (searchParams.get('minPrice')) filterParams.minPrice = searchParams.get('minPrice');
-        if (searchParams.get('maxPrice')) filterParams.maxPrice = searchParams.get('maxPrice');
-        if (searchParams.get('bedrooms')) filterParams.bedrooms = searchParams.get('bedrooms');
-        if (searchParams.get('bathrooms')) filterParams.bathrooms = searchParams.get('bathrooms');
-        if (searchParams.get('furnished')) filterParams.furnished = searchParams.get('furnished');
+        Object.keys(EMPTY_FILTERS).forEach((key) => {
+          const value = searchParams.get(key);
+          if (value) filterParams[key] = value;
+        });
         if (sortBy) filterParams.sort = sortBy;
 
         const res = await propertyService.getApprovedProperties(filterParams);
         setProperties(res.data.properties || []);
-        setLoading(false);
       } catch (err) {
-        setError('Failed to load properties. Please try again.');
+        setError('Failed to load businesses. Please try again.');
+      } finally {
         setLoading(false);
       }
     };
     fetchData();
   }, [searchParams, sortBy]);
 
-  const fetchProperties = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      // Build filter object from URL params
-      const filterParams = {};
-      if (searchParams.get('city')) filterParams.city = searchParams.get('city');
-      if (searchParams.get('propertyType')) filterParams.propertyType = searchParams.get('propertyType');
-      if (searchParams.get('listingType')) filterParams.listingType = searchParams.get('listingType');
-      if (searchParams.get('minPrice')) filterParams.minPrice = searchParams.get('minPrice');
-      if (searchParams.get('maxPrice')) filterParams.maxPrice = searchParams.get('maxPrice');
-      if (searchParams.get('bedrooms')) filterParams.bedrooms = searchParams.get('bedrooms');
-      if (searchParams.get('bathrooms')) filterParams.bathrooms = searchParams.get('bathrooms');
-      if (searchParams.get('furnished')) filterParams.furnished = searchParams.get('furnished');
-      if (sortBy) filterParams.sort = sortBy;
+  // Keep page state in sync with the URL (back/forward, shared links).
+  useEffect(() => {
+    const pageFromUrl = Math.max(1, Number(searchParams.get('page')) || 1);
+    setCurrentPage((prev) => (prev === pageFromUrl ? prev : pageFromUrl));
+  }, [searchParams]);
 
-      const res = await propertyService.getApprovedProperties(filterParams);
-      setProperties(res.data.properties || []);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to load properties. Please try again.');
-      setLoading(false);
-    }
+  const updateURLParams = (newFilters, page = 1) => {
+    const params = new URLSearchParams();
+    Object.keys(newFilters).forEach((key) => {
+      if (newFilters[key]) params.set(key, newFilters[key]);
+    });
+    if (sortBy && sortBy !== 'newest') params.set('sort', sortBy);
+    if (page > 1) params.set('page', String(page));
+    setCurrentPage(page);
+    setSearchParams(params);
   };
 
-  const updateURLParams = (newFilters) => {
-    const params = new URLSearchParams();
-    Object.keys(newFilters).forEach(key => {
-      if (newFilters[key]) {
-        params.set(key, newFilters[key]);
-      }
-    });
-    if (sortBy && sortBy !== 'newest') {
-      params.set('sort', sortBy);
-    }
-    setSearchParams(params);
+  const applyFilters = (newFilters) => {
+    setFilters(newFilters);
+    updateURLParams(newFilters, 1);
   };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    const newFilters = { ...filters, [name]: value };
-    setFilters(newFilters);
-    updateURLParams(newFilters);
+    applyFilters({ ...filters, [name]: value });
   };
 
-  const handlePropertyTypeClick = (type) => {
-    const newFilters = { ...filters, propertyType: filters.propertyType === type ? '' : type };
-    setFilters(newFilters);
-    updateURLParams(newFilters);
+  const handleCategoryClick = (type) => {
+    applyFilters({
+      ...filters,
+      propertyType: filters.propertyType === type ? '' : type,
+    });
+  };
+
+  const handleInvestmentRange = (value) => {
+    const [min = '', max = ''] = value ? value.split('-') : ['', ''];
+    applyFilters({ ...filters, minPrice: min, maxPrice: max });
   };
 
   const handleApplyFilters = () => {
-    updateURLParams(filters);
-    if (window.innerWidth < 1024) {
-      setShowFilters(false);
-    }
+    updateURLParams(filters, 1);
+    if (window.innerWidth < 1024) setShowFilters(false);
   };
 
   const handleReset = () => {
-    const emptyFilters = { 
-      city: '', 
-      propertyType: '', 
-      listingType: '',
-      minPrice: '', 
-      maxPrice: '',
-      bedrooms: '',
-      bathrooms: '',
-      furnished: '',
-    };
-    setFilters(emptyFilters);
+    setFilters(EMPTY_FILTERS);
     setSortBy('newest');
+    setCurrentPage(1);
     setSearchParams({});
   };
 
-  const handleQuickFilter = (type) => {
-    const quickFilters = {
-      commercial: { propertyType: 'Office', listingType: '' },
-      industrial: { propertyType: 'Industrial', listingType: '' },
-      retail: { propertyType: 'Shop', listingType: '' },
-      hospitality: { propertyType: 'Hotel', listingType: '' },
-    };
-    
-    if (quickFilters[type]) {
-      const newFilters = { ...filters, ...quickFilters[type] };
-      setFilters(newFilters);
-      updateURLParams(newFilters);
-    }
+  const goToPage = (page) => {
+    const next = Math.max(1, page);
+    setCurrentPage(next);
+    const params = new URLSearchParams(searchParams);
+    if (next > 1) params.set('page', String(next));
+    else params.delete('page');
+    setSearchParams(params);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const formatCurrency = (amount) => {
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(1)}Cr+`;
-    } else if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(1)}L+`;
-    }
-    return `₹${(amount / 1000).toFixed(0)}K+`;
-  };
+  const activeInvestmentRange =
+    filters.minPrice || filters.maxPrice ? `${filters.minPrice}-${filters.maxPrice}` : '';
+
+  const showRoomFilters = ROOM_BASED_TYPES.includes(filters.propertyType);
 
   const sortedProperties = [...properties].sort((a, b) => {
-    switch(sortBy) {
+    switch (sortBy) {
       case 'price-low':
-        return a.pricing.finalPrice - b.pricing.finalPrice;
+        return (a.pricing?.finalPrice || 0) - (b.pricing?.finalPrice || 0);
       case 'price-high':
-        return b.pricing.finalPrice - a.pricing.finalPrice;
+        return (b.pricing?.finalPrice || 0) - (a.pricing?.finalPrice || 0);
       case 'size-high':
         return (b.propertyDetails?.builtUpArea || 0) - (a.propertyDetails?.builtUpArea || 0);
       case 'newest':
@@ -207,331 +223,348 @@ export const PropertiesPage = () => {
     }
   });
 
-  // Generate dynamic SEO content based on filters
-  const cityFilter = filters.city || searchParams.get('city') || '';
-  const propertyTypeFilter = filters.propertyType || searchParams.get('propertyType') || '';
-  const listingTypeFilter = filters.listingType || searchParams.get('listingType') || '';
-  
-  const seoTitle = cityFilter || propertyTypeFilter || listingTypeFilter
-    ? `${propertyTypeFilter ? propertyTypeFilter + ' ' : ''}${listingTypeFilter ? listingTypeFilter + ' ' : ''}Properties${cityFilter ? ' in ' + cityFilter : ''} | FNAEstate`
-    : 'Premium Properties for Sale & Rent | FNAEstate - Verified Listings';
-  
-  const seoDescription = cityFilter || propertyTypeFilter || listingTypeFilter
-    ? `Find ${propertyTypeFilter ? propertyTypeFilter.toLowerCase() + ' ' : ''}${listingTypeFilter ? listingTypeFilter.toLowerCase() + ' ' : ''}properties${cityFilter ? ' in ' + cityFilter : ''}. Browse verified listings with detailed information, photos, and pricing.`
-    : 'Browse premium properties for sale and rent across India. Factory, Warehouse, Office, Shop, Hotel, Industrial, Cafe, Restaurant, PG, and Running Business listings in Tricity (Chandigarh, Mohali, Kharar, Zirakpur).';
+  const totalPages = Math.max(1, Math.ceil(sortedProperties.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStart = (safePage - 1) * PAGE_SIZE;
+  const paginatedProperties = sortedProperties.slice(pageStart, pageStart + PAGE_SIZE);
+  const showingFrom = sortedProperties.length === 0 ? 0 : pageStart + 1;
+  const showingTo = Math.min(pageStart + PAGE_SIZE, sortedProperties.length);
+
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const pages = new Set([1, totalPages, safePage, safePage - 1, safePage + 1]);
+    return [...pages]
+      .filter((page) => page >= 1 && page <= totalPages)
+      .sort((a, b) => a - b);
+  };
+  const cityFilter = filters.city;
+  const categoryFilter = filters.propertyType;
+  const categoryLabel = categoryFilter ? getCategoryLabel(categoryFilter) : '';
+
+  const seoTitle =
+    cityFilter || categoryFilter
+      ? `${categoryLabel || 'Businesses'} for Sale${cityFilter ? ' in ' + cityFilter : ''} | Udyam Mittar`
+      : 'Running Businesses for Sale in Tricity | Udyam Mittar';
+
+  const seoDescription =
+    cityFilter || categoryFilter
+      ? `Browse verified ${(categoryLabel || 'business').toLowerCase()} opportunities${cityFilter ? ' in ' + cityFilter : ''}. Real financials, confidential deals and expert guidance from Udyam Mittar.`
+      : 'Browse verified running businesses for sale across Chandigarh, Mohali, Panchkula and Zirakpur. Restaurants, retail shops, manufacturing units, PGs and more on Udyam Mittar.';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
-        <meta name="keywords" content={`${propertyTypeFilter || 'properties'} ${cityFilter || 'Chandigarh Mohali Kharar Zirakpur'} ${listingTypeFilter || 'sale rent'} real estate, verified listings, premium properties, Tricity properties`} />
-        <link rel="canonical" href={`https://fnaestate.com/properties${searchParams.toString() ? '?' + searchParams.toString() : ''}`} />
-        
-        {/* Open Graph */}
+        <meta
+          name="keywords"
+          content={`${categoryLabel || 'business for sale'} ${cityFilter || 'Chandigarh Mohali Panchkula Zirakpur'}, buy business Tricity, running business for sale, Udyam Mittar`}
+        />
+        <link
+          rel="canonical"
+          href={`https://udyammittar.com/properties${searchParams.toString() ? '?' + searchParams.toString() : ''}`}
+        />
+
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://fnaestate.com/properties${searchParams.toString() ? '?' + searchParams.toString() : ''}`} />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
-        <meta property="og:image" content="https://fnaestate.com/properties-og.jpg" />
-        
-        {/* Twitter */}
+        <meta property="og:site_name" content="Udyam Mittar" />
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={seoTitle} />
         <meta name="twitter:description" content={seoDescription} />
-        
-        {/* Structured Data */}
+
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "ItemList",
-            "name": seoTitle,
-            "description": seoDescription,
-            "numberOfItems": properties.length,
-            "itemListElement": properties.slice(0, 10).map((property, index) => ({
-              "@type": "ListItem",
-              "position": index + 1,
-              "item": {
-                "@type": "RealEstateListing",
-                "name": property.title,
-                "url": `https://fnaestate.com/property/${property._id}`,
-                "address": {
-                  "@type": "PostalAddress",
-                  "addressLocality": property.location?.city,
-                  "addressRegion": "Punjab",
-                  "addressCountry": "IN"
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            name: seoTitle,
+            description: seoDescription,
+            numberOfItems: properties.length,
+            itemListElement: properties.slice(0, 10).map((property, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              item: {
+                '@type': 'Product',
+                name: property.title,
+                url: `https://udyammittar.com/property/${property._id}`,
+                category: getCategoryLabel(property.propertyType),
+                offers: {
+                  '@type': 'Offer',
+                  price: property.pricing?.finalPrice,
+                  priceCurrency: 'INR',
                 },
-                "price": property.pricing?.price,
-                "priceCurrency": "INR"
-              }
-            }))
+              },
+            })),
           })}
         </script>
       </Helmet>
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Discover Your <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-              Dream Property
+
+      {/* Hero */}
+      <div className="relative border-b border-slate-100">
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src={HERO_IMAGE}
+            alt="Modern city skyline"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white/70 via-transparent to-transparent" />
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-4 py-14 lg:px-8 lg:py-20">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-4 py-1.5 text-xs font-semibold text-brand-800">
+              <ShieldCheck className="h-4 w-4" />
+              Every listing is manually verified
             </span>
-          </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mb-10">
-            Browse our curated collection of premium properties, each selected for quality, location, and value.
-          </p>
-          
-          {/* Dynamic Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-2xl font-bold text-amber-400">{stats.totalProperties || properties.length}+</div>
-              <div className="text-sm text-slate-300">Premium Properties</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-2xl font-bold text-amber-400">{stats.totalCities || 0}+</div>
-              <div className="text-sm text-slate-300">Cities</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-2xl font-bold text-amber-400">{formatCurrency(stats.totalValue || 0)}</div>
-              <div className="text-sm text-slate-300">Transaction Value</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-2xl font-bold text-amber-400">24/7</div>
-              <div className="text-sm text-slate-300">Concierge Support</div>
-            </div>
+
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+              Browse Running Businesses{' '}
+              <span className="text-brand-800">in Tricity</span>
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">
+              Explore verified businesses for sale across Chandigarh, Mohali, Panchkula and Zirakpur,
+              with transparent pricing and confidential deal support.
+            </p>
           </div>
 
-          {/* Quick Filter Pills */}
-          <div className="flex flex-wrap gap-3">
-            <button 
-              onClick={() => handleQuickFilter('commercial')}
-              className={`px-5 py-2.5 rounded-xl font-semibold transition-all hover:scale-105 flex items-center gap-2 ${
-                filters.propertyType === 'Office' 
-                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800' 
-                  : 'bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20'
-              }`}
-            >
-              <Building2 className="w-4 h-4" />
-              Commercial Spaces
-            </button>
-            <button 
-              onClick={() => handleQuickFilter('industrial')}
-              className={`px-5 py-2.5 rounded-xl font-semibold transition-all hover:scale-105 ${
-                filters.propertyType === 'Industrial' 
-                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800' 
-                  : 'bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20'
-              }`}
-            >
-              Industrial Units
-            </button>
-            <button 
-              onClick={() => handleQuickFilter('retail')}
-              className={`px-5 py-2.5 rounded-xl font-semibold transition-all hover:scale-105 ${
-                filters.propertyType === 'Shop' 
-                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800' 
-                  : 'bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20'
-              }`}
-            >
-              Retail Shops
-            </button>
-            <button 
-              onClick={() => handleQuickFilter('hospitality')}
-              className={`px-5 py-2.5 rounded-xl font-semibold transition-all hover:scale-105 ${
-                filters.propertyType === 'Hotel' 
-                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800' 
-                  : 'bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20'
-              }`}
-            >
-              Hospitality
-            </button>
+          {/* Stats */}
+          <div className="mt-8 grid max-w-4xl grid-cols-2 gap-3 md:grid-cols-4">
+            <HeroStat
+              icon={Store}
+              value={`${stats.totalProperties || properties.length}+`}
+              label="Active Listings"
+            />
+            <HeroStat icon={MapPin} value={`${stats.totalCities || 0}`} label="Cities Covered" />
+            <HeroStat
+              icon={IndianRupee}
+              value={formatINR(stats.totalValue) || '—'}
+              label="Listed Value"
+            />
+            <HeroStat icon={Users} value="950+" label="Verified Sellers" />
+          </div>
+
+          {/* Quick category pills */}
+          <div className="mt-6 flex flex-wrap gap-3">
+            {QUICK_FILTERS.map(({ key, label, icon: Icon }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => handleCategoryClick(key)}
+                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-all ${
+                  filters.propertyType === key
+                    ? 'bg-brand-gradient text-white'
+                    : 'border border-slate-200 bg-white text-slate-800 hover:border-brand-600 hover:text-brand-700'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Filters */}
+      <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+          {/* Sidebar */}
           <div className={`${showFilters ? 'block' : 'hidden'} lg:block`}>
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 sticky top-24">
-              <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg">
-                    <Filter className="w-5 h-5 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-slate-900">Filters</h3>
+            <div className="sticky top-24 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-brand-50 p-1.5 text-brand-700">
+                    <Filter className="h-3.5 w-3.5" />
+                  </span>
+                  <h2 className="text-[15px] font-semibold text-slate-900">Filters</h2>
                 </div>
                 <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                  type="button"
+                  onClick={() => setShowFilters(false)}
+                  className="rounded-md p-1.5 transition-colors hover:bg-slate-100 lg:hidden"
                 >
-                  <X className="w-5 h-5 text-slate-600" />
+                  <X className="h-4 w-4 text-slate-500" />
                 </button>
               </div>
 
-              {/* Filter Groups */}
-              <div className="space-y-8">
-                {/* Listing Type Filter */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                    <Home className="w-4 h-4 text-slate-500" />
-                    Listing Type
-                  </label>
+              <div className="space-y-4">
+                <FilterGroup icon={MapPin} label="Location">
+                  <select
+                    name="city"
+                    value={filters.city}
+                    onChange={handleFilterChange}
+                    className={inputClass}
+                  >
+                    <option value="">All Tricity</option>
+                    {TRICITY_LOCATIONS.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                </FilterGroup>
+
+                <FilterGroup icon={Store} label="Business Category">
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {BUSINESS_CATEGORIES.map(({ value, label, icon: Icon }) => {
+                      const active = filters.propertyType === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => handleCategoryClick(value)}
+                          className={`flex flex-col items-center gap-1 rounded-lg border px-1 py-2 text-center transition-colors ${
+                            active
+                              ? 'border-brand-500 bg-brand-50'
+                              : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                          }`}
+                        >
+                          <span
+                            className={`rounded-md p-1 ${
+                              active ? 'bg-white text-brand-700' : 'bg-slate-50 text-slate-500'
+                            }`}
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                          </span>
+                          <span className="text-[9px] font-medium leading-tight text-slate-600">
+                            {label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </FilterGroup>
+
+                <FilterGroup icon={IndianRupee} label="Investment Range">
+                  <select
+                    value={activeInvestmentRange}
+                    onChange={(e) => handleInvestmentRange(e.target.value)}
+                    className={inputClass}
+                  >
+                    <option value="">Any Range</option>
+                    {INVESTMENT_RANGES.map((range) => (
+                      <option key={range.value} value={range.value}>
+                        {range.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="mt-2 grid grid-cols-2 gap-1.5">
+                    <input
+                      type="number"
+                      name="minPrice"
+                      value={filters.minPrice}
+                      onChange={handleFilterChange}
+                      onBlur={handleApplyFilters}
+                      placeholder="Min ₹"
+                      className={inputClass}
+                    />
+                    <input
+                      type="number"
+                      name="maxPrice"
+                      value={filters.maxPrice}
+                      onChange={handleFilterChange}
+                      onBlur={handleApplyFilters}
+                      placeholder="Max ₹"
+                      className={inputClass}
+                    />
+                  </div>
+                </FilterGroup>
+
+                <FilterGroup icon={TrendingUp} label="Monthly Profit">
+                  <select
+                    name="minProfit"
+                    value={filters.minProfit}
+                    onChange={handleFilterChange}
+                    className={inputClass}
+                  >
+                    <option value="">Any Range</option>
+                    {PROFIT_RANGES.map((range) => (
+                      <option key={range.value} value={range.value}>
+                        {range.label}
+                      </option>
+                    ))}
+                  </select>
+                </FilterGroup>
+
+                <FilterGroup icon={Building2} label="Business Type">
                   <select
                     name="listingType"
                     value={filters.listingType}
                     onChange={handleFilterChange}
-                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 transition bg-white"
+                    className={inputClass}
                   >
                     <option value="">All Types</option>
                     <option value="Sale">For Sale</option>
-                    <option value="Rent">For Rent</option>
+                    <option value="Rent">For Lease</option>
                   </select>
-                </div>
+                </FilterGroup>
 
-                {/* Location Filter */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-slate-500" />
-                    Location
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="city"
-                      value={filters.city}
-                      onChange={handleFilterChange}
-                      onBlur={handleApplyFilters}
-                      placeholder="Search city, area, or landmark"
-                      className="w-full px-4 pl-12 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all bg-white"
-                    />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  </div>
-                </div>
-
-                {/* Property Type Filter */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                    <Home className="w-4 h-4 text-slate-500" />
-                    Property Type
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {propertyTypes.map((type) => (
-                      <button
-                        key={type.value}
-                        onClick={() => handlePropertyTypeClick(type.value)}
-                        className={`p-3 rounded-lg border-2 transition-all ${
-                          filters.propertyType === type.value 
-                            ? 'border-amber-500 bg-amber-50' 
-                            : 'border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="text-lg mb-1">{type.icon}</div>
-                        <div className="text-sm font-medium">{type.label}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Price Range Filter */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-slate-500" />
-                    Price Range
-                  </label>
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <input
-                        type="number"
-                        name="minPrice"
-                        value={filters.minPrice}
-                        onChange={handleFilterChange}
-                        onBlur={handleApplyFilters}
-                        placeholder="Min price"
-                        className="w-full px-4 pl-12 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all bg-white"
-                      />
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">₹</span>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        name="maxPrice"
-                        value={filters.maxPrice}
-                        onChange={handleFilterChange}
-                        onBlur={handleApplyFilters}
-                        placeholder="Max price"
-                        className="w-full px-4 pl-12 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all bg-white"
-                      />
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">₹</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Additional Filters */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-2">Bedrooms</label>
-                    <select
-                      name="bedrooms"
-                      value={filters.bedrooms}
-                      onChange={handleFilterChange}
-                      onBlur={handleApplyFilters}
-                      className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 transition bg-white"
-                    >
-                      <option value="">Any</option>
-                      {[1,2,3,4,5].map(num => (
-                        <option key={num} value={num}>{num}+ Beds</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-2">Bathrooms</label>
-                    <select
-                      name="bathrooms"
-                      value={filters.bathrooms}
-                      onChange={handleFilterChange}
-                      onBlur={handleApplyFilters}
-                      className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 transition bg-white"
-                    >
-                      <option value="">Any</option>
-                      {[1,2,3,4].map(num => (
-                        <option key={num} value={num}>{num}+ Baths</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Furnishing Filter */}
-                <div>
-                  <label className="block text-sm font-bold text-slate-900 mb-2">Furnishing</label>
+                <FilterGroup label="Furnishing">
                   <select
                     name="furnished"
                     value={filters.furnished}
                     onChange={handleFilterChange}
-                    onBlur={handleApplyFilters}
-                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 transition bg-white"
+                    className={inputClass}
                   >
                     <option value="">Any</option>
                     <option value="fully">Fully Furnished</option>
                     <option value="semi">Semi Furnished</option>
                     <option value="unfurnished">Unfurnished</option>
                   </select>
-                </div>
+                </FilterGroup>
 
-                {/* Action Buttons */}
-                <div className="pt-6 border-t border-slate-200 space-y-3">
+                {showRoomFilters && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <FilterGroup label="Rooms">
+                      <select
+                        name="bedrooms"
+                        value={filters.bedrooms}
+                        onChange={handleFilterChange}
+                        className={inputClass}
+                      >
+                        <option value="">Any</option>
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <option key={num} value={num}>
+                            {num}+
+                          </option>
+                        ))}
+                      </select>
+                    </FilterGroup>
+                    <FilterGroup label="Washrooms">
+                      <select
+                        name="bathrooms"
+                        value={filters.bathrooms}
+                        onChange={handleFilterChange}
+                        className={inputClass}
+                      >
+                        <option value="">Any</option>
+                        {[1, 2, 3, 4].map((num) => (
+                          <option key={num} value={num}>
+                            {num}+
+                          </option>
+                        ))}
+                      </select>
+                    </FilterGroup>
+                  </div>
+                )}
+
+                <div className="space-y-2 border-t border-slate-100 pt-4">
                   <button
+                    type="button"
                     onClick={handleApplyFilters}
-                    className="w-full group relative bg-gradient-to-r from-amber-600 to-amber-700 text-white py-3.5 rounded-xl font-bold hover:shadow-xl transition-all overflow-hidden"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-gradient py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-95"
                   >
-                    <div className="relative z-10 flex items-center justify-center gap-3">
-                      <Search className="w-5 h-5" />
-                      Search Properties
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-amber-700 to-amber-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <Search className="h-3.5 w-3.5" />
+                    Search Businesses
                   </button>
                   <button
+                    type="button"
                     onClick={handleReset}
-                    className="w-full border-2 border-slate-300 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-400 transition-all"
+                    className="w-full rounded-lg border border-slate-200 py-2.5 text-xs font-medium text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50"
                   >
                     Reset All Filters
                   </button>
@@ -540,119 +573,191 @@ export const PropertiesPage = () => {
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Results */}
           <div className="lg:col-span-3">
-            {/* Top Controls */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-              <div className="flex items-center gap-4">
+            <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3">
                 <button
+                  type="button"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="lg:hidden flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-slate-200"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm lg:hidden"
                 >
-                  <Filter className="w-5 h-5" />
-                  <span className="font-semibold">Filters</span>
+                  <Filter className="h-3.5 w-3.5" />
+                  Filters
                 </button>
-                <p className="text-slate-700 font-medium">
-                  Showing <span className="font-bold text-amber-600">{sortedProperties.length}</span> premium properties
+                <p className="text-xs text-slate-500">
+                  Showing{' '}
+                  <span className="font-semibold text-slate-800">
+                    {showingFrom}-{showingTo}
+                  </span>{' '}
+                  of{' '}
+                  <span className="font-semibold text-slate-800">{sortedProperties.length}</span>{' '}
+                  verified {sortedProperties.length === 1 ? 'business' : 'businesses'}
                 </p>
               </div>
 
-              <div className="flex items-center gap-4">
-                {/* View Toggle */}
-                <div className="flex bg-slate-100 p-1 rounded-xl">
+              <div className="flex items-center gap-2">
+                <div className="flex rounded-lg bg-slate-100 p-0.5">
                   <button
+                    type="button"
+                    aria-label="Grid view"
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow' : 'hover:bg-white/50'}`}
+                    className={`rounded-md p-1.5 transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-white/60'}`}
                   >
-                    <Grid className="w-5 h-5 text-slate-700" />
+                    <Grid className="h-3.5 w-3.5 text-slate-600" />
                   </button>
                   <button
+                    type="button"
+                    aria-label="List view"
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow' : 'hover:bg-white/50'}`}
+                    className={`rounded-md p-1.5 transition-all ${viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-white/60'}`}
                   >
-                    <List className="w-5 h-5 text-slate-700" />
+                    <List className="h-3.5 w-3.5 text-slate-600" />
                   </button>
                 </div>
 
-                {/* Sort Dropdown */}
                 <div className="relative">
                   <select
                     value={sortBy}
                     onChange={(e) => {
                       setSortBy(e.target.value);
+                      setCurrentPage(1);
                       const params = new URLSearchParams(searchParams);
                       if (e.target.value !== 'newest') {
                         params.set('sort', e.target.value);
                       } else {
                         params.delete('sort');
                       }
+                      params.delete('page');
                       setSearchParams(params);
                     }}
-                    className="appearance-none pl-4 pr-12 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 transition font-semibold bg-white min-w-[180px] cursor-pointer"
+                    className="min-w-[160px] cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white py-2 pl-3 pr-8 text-xs font-medium text-slate-700 transition focus:border-brand-500 focus:outline-none"
                   >
                     <option value="newest">Newest First</option>
                     <option value="price-low">Price: Low to High</option>
                     <option value="price-high">Price: High to Low</option>
                     <option value="size-high">Size: High to Low</option>
                   </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                 </div>
               </div>
             </div>
 
-            {/* Properties Grid */}
             {loading ? (
-              <div className="col-span-full">
-                <Loading />
-              </div>
+              <Loading />
             ) : error ? (
-              <div className="bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-200 rounded-2xl p-8 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full mb-4">
-                  <X className="w-8 h-8 text-white" />
-                </div>
-                <p className="text-lg font-semibold text-red-800 mb-2">{error}</p>
-                <p className="text-red-600">Please try refreshing the page or contact support.</p>
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+                <span className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-red-500">
+                  <X className="h-7 w-7 text-white" />
+                </span>
+                <p className="text-lg font-semibold text-red-800">{error}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  Please refresh the page or contact support.
+                </p>
               </div>
             ) : sortedProperties.length === 0 ? (
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-2xl p-12 text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mb-6">
-                  <Search className="w-10 h-10 text-white" />
-                </div>
-                <p className="text-2xl font-bold text-slate-900 mb-2">No Properties Found</p>
-                <p className="text-slate-600 mb-6 max-w-md mx-auto">
-                  Try adjusting your filters or explore our premium listings in different categories.
+              <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
+                <span className="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-50">
+                  <Search className="h-8 w-8 text-brand-700" />
+                </span>
+                <p className="text-xl font-bold text-slate-900">No Businesses Found</p>
+                <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
+                  Try adjusting your filters or explore other categories across Tricity.
                 </p>
                 <button
+                  type="button"
                   onClick={handleReset}
-                  className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                  className="mt-6 rounded-xl bg-brand-gradient px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-gradient"
                 >
-                  View All Properties
+                  View All Businesses
                 </button>
               </div>
             ) : (
-              <div className={`gap-8 ${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2' : 'space-y-8'}`}>
-                {sortedProperties.map((property) => (
-                  <PropertyCard key={property._id} property={property} viewMode={viewMode} />
-                ))}
-              </div>
+              <>
+                <div
+                  className={
+                    viewMode === 'grid'
+                      ? 'grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'
+                      : 'space-y-6'
+                  }
+                >
+                  {paginatedProperties.map((property) => (
+                    <PropertyCard key={property._id} property={property} viewMode={viewMode} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 sm:flex-row">
+                    <p className="text-sm text-slate-600">
+                      Page <span className="font-bold text-brand-700">{safePage}</span> of{' '}
+                      <span className="font-bold text-slate-900">{totalPages}</span>
+                    </p>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        disabled={safePage <= 1}
+                        onClick={() => goToPage(safePage - 1)}
+                        className="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-brand-300 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Prev
+                      </button>
+
+                      {getPageNumbers().map((page, index, arr) => {
+                        const showEllipsis = index > 0 && page - arr[index - 1] > 1;
+                        return (
+                          <React.Fragment key={page}>
+                            {showEllipsis && (
+                              <span className="px-1 text-slate-400">…</span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => goToPage(page)}
+                              className={`min-w-10 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
+                                page === safePage
+                                  ? 'bg-brand-gradient text-white'
+                                  : 'border border-slate-200 text-slate-700 hover:border-brand-300 hover:text-brand-700'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          </React.Fragment>
+                        );
+                      })}
+
+                      <button
+                        type="button"
+                        disabled={safePage >= totalPages}
+                        onClick={() => goToPage(safePage + 1)}
+                        className="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-brand-300 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
-            {/* Results Info */}
             {!loading && sortedProperties.length > 0 && (
-              <div className="mt-12 pt-8 border-t border-slate-200">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                  <p className="text-slate-600">
-                    Showing <span className="font-bold text-slate-900">{Math.min(sortedProperties.length, 12)}</span> of{' '}
-                    <span className="font-bold text-slate-900">{sortedProperties.length}</span> premium properties
+              <div className="mt-10 flex flex-col items-center justify-between gap-4 rounded-2xl bg-brand-gradient px-6 py-6 text-white md:flex-row">
+                <div>
+                  <h2 className="text-lg font-bold">Not finding the right business?</h2>
+                  <p className="mt-1 text-sm text-brand-100">
+                    Tell our experts what you're looking for and we'll match you with verified
+                    sellers.
                   </p>
-                  <div className="flex items-center gap-4">
-                    <button className="px-6 py-3 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2">
-                      <Building2 className="w-5 h-5" />
-                      Request Concierge
-                    </button>
-                  </div>
                 </div>
-              </div> 
+                <Link
+                  to="/services/consultation"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+                >
+                  <Handshake className="h-4 w-4" />
+                  Get Guidance
+                </Link>
+              </div>
             )}
           </div>
         </div>

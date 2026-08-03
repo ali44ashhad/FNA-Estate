@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useParams } from 'react-router-dom';
-import { propertyService, enquiryService } from '../services/api';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { propertyService, enquiryService, authService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { Loading } from '../components/Loading';
-import { 
-  MapPin, 
-  BedDouble, 
-  Bath, 
-  Square, 
-  Car, 
-  Heart, 
-  Share2, 
+import { SaveButton } from '../components/SaveButton';
+import {
+  FALLBACK_LISTING_IMAGE,
+  getCategoryLabel,
+  getListingBadge,
+  getListingBadgeTone,
+  getListingBadges,
+  getListingPrice,
+  getListingStats,
+  getListingHighlights,
+} from '../utils/business';
+import {
+  Square,
+  Car,
+  Share2,
   CheckCircle,
   Calendar,
   Building2,
@@ -18,19 +26,66 @@ import {
   Mail,
   MessageSquare,
   ArrowLeft,
-  Eye,
-  Users,
-  Shield,
-  Star,
-  Home,
+  ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  Target
+  Handshake,
+  BedDouble,
+  Bath,
+  Compass,
+  Zap,
+  Droplets,
+  Dumbbell,
+  Waves,
+  Lock,
+  ArrowUpDown,
+  X,
+  LogIn,
+  LayoutDashboard,
 } from 'lucide-react';
+
+const AMENITIES = [
+  { key: 'parking', label: 'Parking', icon: Car },
+  { key: 'lift', label: 'Lift', icon: ArrowUpDown },
+  { key: 'security', label: 'Security', icon: Lock },
+  { key: 'powerBackup', label: 'Power Backup', icon: Zap },
+  { key: 'waterSupply', label: '24/7 Water', icon: Droplets },
+  { key: 'gym', label: 'Gym', icon: Dumbbell },
+  { key: 'swimmingPool', label: 'Swimming Pool', icon: Waves },
+  { key: 'kitchen', label: 'Kitchen', icon: CheckCircle },
+  { key: 'outdoorSeating', label: 'Outdoor Seating', icon: CheckCircle },
+  { key: 'liquorLicense', label: 'Liquor License', icon: CheckCircle },
+  { key: 'cctv', label: 'CCTV', icon: Lock },
+  { key: 'loadingBay', label: 'Loading Bay', icon: CheckCircle },
+  { key: 'access24x7', label: '24×7 Access', icon: CheckCircle },
+  { key: 'ac', label: 'AC', icon: CheckCircle },
+  { key: 'wifi', label: 'Wi‑Fi', icon: CheckCircle },
+  { key: 'attachedBathroom', label: 'Attached Bathroom', icon: Bath },
+  { key: 'messFacility', label: 'Mess / Food', icon: CheckCircle },
+];
+
+const inputClass =
+  'w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 transition focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-100';
+
+/** Normalize phone for tel: and WhatsApp (defaults to India +91 for 10-digit numbers) */
+const toWhatsAppNumber = (phone) => {
+  if (!phone) return '';
+  let digits = String(phone).replace(/\D/g, '');
+  if (digits.startsWith('0')) digits = digits.slice(1);
+  if (digits.length === 10) digits = `91${digits}`;
+  return digits;
+};
+
+const toTelHref = (phone) => {
+  const digits = toWhatsAppNumber(phone);
+  return digits ? `tel:+${digits}` : null;
+};
 
 export const PropertyDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const routerLocation = useLocation();
+  const { user } = useAuth();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,23 +93,39 @@ export const PropertyDetailPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
-  const [saved, setSaved] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     message: '',
   });
+  const [platformPhone, setPlatformPhone] = useState('');
+
+  const ownerId = property?.createdBy?._id || property?.createdBy;
+  const isOwnListing = Boolean(
+    user?.role === 'seller' &&
+      ownerId &&
+      String(ownerId) === String(user.id || user._id)
+  );
+  const isAdmin = user?.role === 'admin';
+  const canEnquire = Boolean(
+    user && (user.role === 'user' || user.role === 'seller') && !isOwnListing
+  );
+  const enquiriesPath = user?.role === 'seller' ? '/seller/enquiries' : '/user/enquiries';
+  const returnPath = `${routerLocation.pathname}${routerLocation.search}`;
 
   useEffect(() => {
     const fetchProperty = async () => {
       try {
+        setLoading(true);
+        setError('');
         const res = await propertyService.getPropertyDetails(id);
         setProperty(res.data.property);
-        setLoading(false);
+        setSelectedImage(0);
       } catch (err) {
-        setError('Failed to load property details. Please try again.');
+        setError('Failed to load business details. Please try again.');
+        setProperty(null);
+      } finally {
         setLoading(false);
       }
     };
@@ -62,525 +133,751 @@ export const PropertyDetailPage = () => {
     fetchProperty();
   }, [id]);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await authService.getPlatformContact();
+        setPlatformPhone(res.data.contact?.phone || '');
+      } catch {
+        setPlatformPhone('');
+      }
+    })();
+  }, []);
+
+  // Prefill enquiry contact details from the logged-in profile
+  useEffect(() => {
+    if (!user || (user.role !== 'user' && user.role !== 'seller')) {
+      setShowEnquiryForm(false);
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || user.name || '',
+      email: prev.email || user.email || '',
+      phone: prev.phone || user.phone || '',
+    }));
+  }, [user]);
+
+  const images = useMemo(() => {
+    if (!property) return [FALLBACK_LISTING_IMAGE];
+    const primary = property.media?.primaryImage;
+    const gallery = property.media?.gallery || [];
+    const list = [primary, ...gallery].filter(Boolean);
+    return list.length > 0 ? [...new Set(list)] : [FALLBACK_LISTING_IMAGE];
+  }, [property]);
+
+  const requireLogin = () => {
+    navigate('/login', { state: { from: returnPath } });
+  };
+
+  const openEnquiryForm = () => {
+    if (!user) {
+      requireLogin();
+      return;
+    }
+    if (isOwnListing) {
+      setError('You cannot send an enquiry on your own listing.');
+      return;
+    }
+    if (!canEnquire) {
+      setError('Only buyer or seller accounts can send enquiries.');
+      return;
+    }
+    setError('');
+    setShowEnquiryForm(true);
+  };
+
+  const handleContactClick = (e) => {
+    if (!user) {
+      e.preventDefault();
+      requireLogin();
+      return;
+    }
+    if (isOwnListing) {
+      e.preventDefault();
+      setError('You cannot contact yourself on your own listing.');
+      return;
+    }
+    if (!canEnquire) {
+      e.preventDefault();
+      setError('Only buyer or seller accounts can contact sellers from this page.');
+    }
+  };
+
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmitEnquiry = async (e) => {
     e.preventDefault();
+    if (!canEnquire) {
+      if (!user) requireLogin();
+      return;
+    }
     try {
       setSubmitting(true);
+      setError('');
       await enquiryService.submitEnquiry({
         propertyId: id,
         contactInfo: formData,
       });
-      setSuccessMessage('Your enquiry has been submitted successfully! Our premium concierge will contact you within 24 hours.');
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      setSuccessMessage(
+        'Your enquiry has been submitted successfully! Track its status anytime under My Enquiries.'
+      );
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        message: '',
+      });
       setShowEnquiryForm(false);
       setTimeout(() => setSuccessMessage(''), 5000);
     } catch (err) {
-      setError('Failed to submit enquiry. Please try again or contact our support team.');
+      if (err.response?.status === 401) {
+        requireLogin();
+        return;
+      }
+      setError(
+        err.response?.data?.message ||
+          'Failed to submit enquiry. Please try again or contact support.'
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleScheduleVisit = () => {
-    window.open(`https://calendly.com/premium-estate/${id}`, '_blank');
-  };
+  const handleShare = async () => {
+    const shareData = {
+      title: property?.title || 'Udyam Mittar Listing',
+      text: `Check out this business on Udyam Mittar: ${property?.title || ''}`,
+      url: window.location.href,
+    };
 
-  const formatPrice = (price) => {
-    if (price >= 10000000) {
-      return `₹${(price / 10000000).toFixed(2)} Cr`;
-    } else if (price >= 100000) {
-      return `₹${(price / 100000).toFixed(1)} L`;
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setSuccessMessage('Listing link copied to clipboard.');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      }
+    } catch {
+      // User cancelled share — ignore.
     }
-    return `₹${price.toLocaleString()}`;
   };
 
   const getDaysAgo = (date) => {
-    const days = Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
-    return days === 0 ? 'Today' : `${days} days ago`;
+    if (!date) return '—';
+    const days = Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
+    if (days <= 0) return 'Today';
+    if (days === 1) return '1 day ago';
+    return `${days} days ago`;
   };
 
-  const formatNumber = (num) => {
-    if (!num && num !== 0) return '0';
-    return num.toLocaleString('en-US');
-  };
-
-  const images = property?.media?.gallery && property.media.gallery.length > 0 
-    ? [property.media.primaryImage, ...property.media.gallery]
-    : ['https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1600'];
-
-  const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImage = () => {
+  const nextImage = () => setSelectedImage((prev) => (prev + 1) % images.length);
+  const prevImage = () =>
     setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
-  };
-
-  const amenitiesList = [
-    { key: 'parking', label: 'Parking', icon: '🅿️' },
-    { key: 'lift', label: 'Lift', icon: '🛗' },
-    { key: 'security', label: 'Security', icon: '🔐' },
-    { key: 'powerBackup', label: 'Power Backup', icon: '⚡' },
-    { key: 'waterSupply', label: '24/7 Water', icon: '💧' },
-    { key: 'gym', label: 'Gym', icon: '💪' },
-    { key: 'swimmingPool', label: 'Swimming Pool', icon: '🏊' },
-    { key: 'clubHouse', label: 'Club House', icon: '🏛️' },
-    { key: 'childrensPlayArea', label: 'Play Area', icon: '🎠' },
-    { key: 'garden', label: 'Garden', icon: '🌿' },
-    { key: 'cctv', label: 'CCTV', icon: '📹' },
-    { key: 'wifi', label: 'High-speed WiFi', icon: '📡' },
-  ];
 
   if (loading) return <Loading />;
-  
-  if (error) return (
-    <div className="max-w-7xl mx-auto px-4 py-20">
-      <div className="bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-200 rounded-2xl p-12 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-full mb-6">
-          <Shield className="w-10 h-10 text-white" />
-        </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-3">Unable to Load Property</h2>
-        <p className="text-lg text-red-600 mb-6">{error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="px-8 py-3 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
-        >
-          Try Again
-        </button>
-      </div>
-    </div>
-  );
-  
-  if (!property) return (
-    <div className="max-w-7xl mx-auto px-4 py-20">
-      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-2xl p-12 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mb-6">
-          <Home className="w-10 h-10 text-white" />
-        </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-3">Property Not Available</h2>
-        <p className="text-lg text-slate-600 mb-6">This property is no longer listed or has been removed.</p>
-        <a 
-          href="/properties" 
-          className="px-8 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Browse Properties
-        </a>
-      </div>
-    </div>
-  );
 
-  // Generate SEO content from property data
-  const propertyTitle = property ? `${property.title} - ${property.location?.city || ''} | FNAEstate` : 'Property Details | FNAEstate';
-  const propertyDescription = property 
-    ? `${property.title} - ${property.propertyType || 'Property'} ${property.listingType || 'for sale/rent'} in ${property.location?.city || ''}, ${property.location?.locality || ''}. ${property.description?.substring(0, 150) || ''} Price: ${formatPrice(property.pricing?.price || 0)}. View details, photos, and contact seller.`
-    : 'View detailed property information including photos, pricing, location, and amenities. Contact seller for more information.';
-  const propertyImage = property?.media?.primaryImage || property?.media?.gallery?.[0] || 'https://fnaestate.com/default-property.jpg';
-  const propertyUrl = `https://fnaestate.com/property/${id}`;
+  if (error && !property) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 lg:px-8">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-12 text-center">
+          <span className="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-full bg-red-500">
+            <ShieldCheck className="h-8 w-8 text-white" />
+          </span>
+          <h2 className="text-2xl font-bold text-slate-900">Unable to Load Business</h2>
+          <p className="mt-2 text-red-600">{error}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-6 rounded-xl bg-brand-gradient px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-gradient"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!property) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 lg:px-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
+          <span className="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-50">
+            <Building2 className="h-8 w-8 text-brand-700" />
+          </span>
+          <h2 className="text-2xl font-bold text-slate-900">Business Not Available</h2>
+          <p className="mt-2 text-slate-600">
+            This listing is no longer available or has been removed.
+          </p>
+          <Link
+            to="/properties"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-gradient px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-gradient"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Browse Businesses
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const category = getCategoryLabel(property.propertyType);
+  const price = getListingPrice(property);
+  const badge = getListingBadge(property);
+  const badgeTone = getListingBadgeTone(property);
+  const badges = getListingBadges(property);
+  const isSold = property.status === 'Sold';
+  const stats = getListingStats(property);
+  const listingType = property.listingType === 'Rent' ? 'For Lease' : 'For Sale';
+  const activeAmenities = AMENITIES.filter((item) => property.amenities?.[item.key]);
+  const otherAmenities = property.amenities?.other || [];
+
+  const seoTitle = `${property.title} | ${category} | Udyam Mittar`;
+  const seoDescription = `${property.title} — verified ${category.toLowerCase()} ${listingType.toLowerCase()}. ${
+    property.description?.slice(0, 140) || 'View details, photos and connect with the seller on Udyam Mittar.'
+  } Asking price: ${price}.`;
+  const propertyImage = images[0];
+  const propertyUrl = `https://udyammittar.com/property/${id}`;
+
+  const highlightItems = getListingHighlights(property);
+
+  const badgeClass =
+    badgeTone === 'amber'
+      ? 'bg-amber-500 text-white'
+      : badgeTone === 'sold'
+        ? 'bg-slate-800 text-white'
+        : 'bg-brand-gradient text-white';
+
+  const callHref = toTelHref(platformPhone);
+  const whatsappNumber = toWhatsAppNumber(platformPhone);
+  const whatsappHref = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+        `Hi, I'm interested in: ${property.title}`
+      )}`
+    : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
-        <title>{propertyTitle}</title>
-        <meta name="description" content={propertyDescription} />
-        <meta name="keywords" content={`${property?.propertyType || 'property'} ${property?.location?.city || ''} ${property?.listingType || 'sale rent'} real estate, ${property?.location?.locality || ''}, verified listing, FNAEstate`} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <meta
+          name="keywords"
+          content={`${category}, ${property.propertyType}, business for sale, Udyam Mittar`}
+        />
         <link rel="canonical" href={propertyUrl} />
-        
-        {/* Open Graph */}
+
         <meta property="og:type" content="website" />
         <meta property="og:url" content={propertyUrl} />
-        <meta property="og:title" content={propertyTitle} />
-        <meta property="og:description" content={propertyDescription} />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
         <meta property="og:image" content={propertyImage} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        
-        {/* Twitter */}
+        <meta property="og:site_name" content="Udyam Mittar" />
+
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content={propertyUrl} />
-        <meta name="twitter:title" content={propertyTitle} />
-        <meta name="twitter:description" content={propertyDescription} />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={propertyImage} />
-        
-        {/* Structured Data */}
-        {property && (
-          <script type="application/ld+json">
-            {JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "RealEstateListing",
-              "name": property.title,
-              "description": property.description,
-              "url": propertyUrl,
-              "image": property.media?.gallery || [propertyImage],
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": property.location?.locality,
-                "addressLocality": property.location?.city,
-                "addressRegion": "Punjab",
-                "postalCode": property.location?.pincode || "",
-                "addressCountry": "IN"
-              },
-              "geo": property.location?.coordinates ? {
-                "@type": "GeoCoordinates",
-                "latitude": property.location.coordinates.lat,
-                "longitude": property.location.coordinates.lng
-              } : undefined,
-              "price": property.pricing?.price,
-              "priceCurrency": "INR",
-              "numberOfRooms": property.propertyDetails?.bedrooms,
-              "floorSize": {
-                "@type": "QuantitativeValue",
-                "value": property.propertyDetails?.builtUpArea,
-                "unitCode": "MTK"
-              },
-              "yearBuilt": property.propertyDetails?.yearBuilt,
-              "amenityFeature": amenitiesList
-                .filter(amenity => property.amenities?.[amenity.key])
-                .map(amenity => ({
-                  "@type": "LocationFeatureSpecification",
-                  "name": amenity.label,
-                  "value": true
-                }))
-            })}
-          </script>
-        )}
+
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: property.title,
+            description: property.description,
+            url: propertyUrl,
+            image: images,
+            category,
+            offers: {
+              '@type': 'Offer',
+              price: property.pricing?.finalPrice,
+              priceCurrency: 'INR',
+              availability: isSold
+                ? 'https://schema.org/SoldOut'
+                : 'https://schema.org/InStock',
+            },
+          })}
+        </script>
       </Helmet>
-      {/* Success Message */}
+
+      {isSold && (
+        <div className="border-b border-slate-700 bg-slate-800 px-4 py-3 text-center text-sm font-semibold text-white">
+          This business has been marked as Sold. Enquiries are closed for this listing.
+        </div>
+      )}
+
       {successMessage && (
-        <div className="fixed top-4 right-4 z-50 animate-slideIn">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-2xl shadow-2xl max-w-sm">
-            <div className="flex items-start gap-4">
-              <CheckCircle className="w-6 h-6 flex-shrink-0" />
-              <div>
-                <p className="font-bold mb-1">Enquiry Submitted!</p>
-                <p className="text-sm text-green-100">{successMessage}</p>
-              </div>
+        <div className="fixed right-4 top-4 z-50 max-w-sm rounded-2xl bg-brand-gradient p-5 text-white shadow-2xl">
+          <div className="flex items-start gap-3">
+            <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-bold">Done</p>
+              <p className="mt-1 text-sm text-brand-100">{successMessage}</p>
             </div>
+            <button
+              type="button"
+              onClick={() => setSuccessMessage('')}
+              className="ml-auto rounded-lg p-1 hover:bg-white/10"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* Back & Actions */}
-        <div className="flex justify-between items-center mb-8">
-          <a 
-            href="/properties" 
-            className="inline-flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:shadow-lg transition-all text-slate-700 font-semibold"
+      <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <Link
+            to="/properties"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 transition-colors hover:text-brand-700"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Properties
-          </a>
-          <div className="flex gap-3">
-            <button 
-              onClick={() => setSaved(!saved)} 
-              className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:shadow-lg transition-all"
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Businesses
+          </Link>
+
+          <div className="flex gap-2">
+            <SaveButton
+              propertyId={property._id}
+              ownerId={property.createdBy?._id || property.createdBy}
+              variant="outlined"
+            />
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label="Share listing"
+              className="rounded-lg border border-slate-200 bg-white p-2 transition-colors hover:border-brand-300"
             >
-              <Heart className={`w-5 h-5 ${saved ? 'fill-red-500 text-red-500' : 'text-slate-700'}`} />
-            </button>
-            <button className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:shadow-lg transition-all">
-              <Share2 className="w-5 h-5 text-slate-700" />
+              <Share2 className="h-4 w-4 text-slate-500" />
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Main */}
           <div className="lg:col-span-2">
             {/* Gallery */}
-            <div className="mb-8 relative">
-              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 h-96">
+            <div className="mb-5">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-slate-200 sm:aspect-[2/1]">
                 <img
                   src={images[selectedImage]}
                   alt={property.title}
-                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = FALLBACK_LISTING_IMAGE;
+                  }}
+                  className="h-full w-full object-cover"
                 />
-                
-                {/* Navigation Arrows */}
-                <button 
-                  onClick={prevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 backdrop-blur-sm text-white rounded-xl hover:bg-black/70 transition-colors"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button 
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 backdrop-blur-sm text-white rounded-xl hover:bg-black/70 transition-colors"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
 
-                {/* Image Counter */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 backdrop-blur-sm text-white rounded-full text-sm font-semibold">
+                {images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={prevImage}
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 rounded-lg bg-black/45 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/65"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextImage}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg bg-black/45 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/65"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
+
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 rounded-md bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white">
                   {selectedImage + 1} / {images.length}
                 </div>
 
-                {/* Premium Badge */}
-                {property.pricing.finalPrice > 50000000 && (
-                  <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-2xl">
-                    <Sparkles className="w-4 h-4" />
-                    PREMIUM LISTING
-                  </div>
-                )}
-
-                {/* Verified Badge */}
-                <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-2xl">
-                  <Shield className="w-4 h-4" />
-                  VERIFIED PROPERTY
-                </div>
+                <span
+                  className={`absolute left-2.5 top-2.5 inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${badgeClass}`}
+                >
+                  {badge}
+                </span>
               </div>
 
-              {/* Thumbnail Gallery */}
-              <div className="grid grid-cols-6 gap-3 mt-4">
-                {images.slice(0, 6).map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(idx)}
-                    className={`relative rounded-xl overflow-hidden h-24 border-3 transition-all ${
-                      selectedImage === idx
-                        ? 'border-amber-500 shadow-lg'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`Gallery ${idx}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {selectedImage === idx && (
-                      <div className="absolute inset-0 bg-amber-500/20"></div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Property Details Card */}
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 mb-8">
-              {/* Header */}
-              <div className="mb-8 pb-8 border-b border-slate-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg">
-                    <Building2 className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-amber-600 uppercase tracking-wider">
-                    {property.propertyType}
-                  </span>
-                </div>
-                
-                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">
-                  {property.title}
-                </h1>
-                
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <MapPin className="w-5 h-5 text-amber-500" />
-                    <span className="text-lg font-medium">{property.location.locality}, {property.location.city}</span>
-                  </div>
-                  
-                  <span className="text-slate-400">•</span>
-                  <span className="text-slate-500">{property.location.state}</span>
-                </div>
-
-                {/* Price Section */}
-                <div className="flex items-baseline gap-6 flex-wrap">
-                  <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text text-transparent">
-                    {formatPrice(property.pricing.finalPrice)}
-                  </div>
-                  {property.pricing.originalPrice && (
-                    <div className="text-2xl text-slate-400 line-through">
-                      {formatPrice(property.pricing.originalPrice)}
-                    </div>
-                  )}
-                  <div className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-full font-bold text-sm">
-                    {property.listingType}
-                  </div>
-                </div>
-              </div>
-
-              {/* Key Specifications */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
-                  <Target className="w-6 h-6 text-amber-500" />
-                  Key Specifications
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div className="text-center p-6 bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl mb-4">
-                      <BedDouble className="w-7 h-7 text-white" />
-                    </div>
-                    <p className="text-slate-600 text-sm font-medium">Bedrooms</p>
-                    <p className="text-2xl font-bold text-slate-900">{property.propertyDetails.bedrooms}</p>
-                  </div>
-                  <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-100 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-xl mb-4">
-                      <Bath className="w-7 h-7 text-white" />
-                    </div>
-                    <p className="text-slate-600 text-sm font-medium">Bathrooms</p>
-                    <p className="text-2xl font-bold text-slate-900">{property.propertyDetails.bathrooms}</p>
-                  </div>
-                  <div className="text-center p-6 bg-gradient-to-br from-emerald-50 to-green-100 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl mb-4">
-                      <Square className="w-7 h-7 text-white" />
-                    </div>
-                    <p className="text-slate-600 text-sm font-medium">Built-up Area</p>
-                    <p className="text-2xl font-bold text-slate-900">{property.propertyDetails.builtUpArea} sqft</p>
-                  </div>
-                  <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-100 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl mb-4">
-                      <Car className="w-7 h-7 text-white" />
-                    </div>
-                    <p className="text-slate-600 text-sm font-medium">Parking</p>
-                    <p className="text-2xl font-bold text-slate-900">{property.propertyDetails.parking || '2'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Property Highlights */}
-              <div className="mb-8 pb-8 border-b border-slate-200">
-                <h3 className="text-2xl font-bold text-slate-900 mb-6">Property Highlights</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="bg-slate-50 p-4 rounded-xl">
-                    <p className="text-slate-600 text-sm font-medium mb-1">Furnishing Status</p>
-                    <p className="text-lg font-bold text-slate-900 capitalize">{property.propertyDetails.furnishingStatus}</p>
-                  </div>
-                  <div className="bg-slate-50 p-4 rounded-xl">
-                    <p className="text-slate-600 text-sm font-medium mb-1">Floor Number</p>
-                    <p className="text-lg font-bold text-slate-900">{property.propertyDetails.floorNumber || '5th'}</p>
-                  </div>
-                  <div className="bg-slate-50 p-4 rounded-xl">
-                    <p className="text-slate-600 text-sm font-medium mb-1">Age of Property</p>
-                    <p className="text-lg font-bold text-slate-900">{property.propertyDetails.age || 'New Construction'}</p>
-                  </div>
-                  <div className="bg-slate-50 p-4 rounded-xl">
-                    <p className="text-slate-600 text-sm font-medium mb-1">Total Floors</p>
-                    <p className="text-lg font-bold text-slate-900">{property.propertyDetails.totalFloors || '15'}</p>
-                  </div>
-                  <div className="bg-slate-50 p-4 rounded-xl">
-                    <p className="text-slate-600 text-sm font-medium mb-1">Facing Direction</p>
-                    <p className="text-lg font-bold text-slate-900">{property.propertyDetails.facing || 'East'}</p>
-                  </div>
-                  <div className="bg-slate-50 p-4 rounded-xl">
-                    <p className="text-slate-600 text-sm font-medium mb-1">Availability</p>
-                    <p className="text-lg font-bold text-emerald-600">Immediate</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Amenities */}
-              <div className="mb-8 pb-8 border-b border-slate-200">
-                <h3 className="text-2xl font-bold text-slate-900 mb-6">Premium Amenities</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {amenitiesList.map((amenity) => (
-                    property.amenities?.[amenity.key] && (
-                      <div key={amenity.key} className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-xl hover:border-amber-300 transition-colors">
-                        <span className="text-2xl">{amenity.icon}</span>
-                        <span className="font-semibold text-slate-900">{amenity.label}</span>
-                      </div>
-                    )
+              {images.length > 1 && (
+                <div className="mt-2.5 grid grid-cols-5 gap-1.5 sm:grid-cols-7">
+                  {images.slice(0, 7).map((img, idx) => (
+                    <button
+                      key={`${img}-${idx}`}
+                      type="button"
+                      onClick={() => setSelectedImage(idx)}
+                      className={`relative aspect-[4/3] overflow-hidden rounded-lg border transition-all ${
+                        selectedImage === idx
+                          ? 'border-brand-600'
+                          : 'border-transparent hover:border-slate-300'
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`Gallery ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
                   ))}
                 </div>
+              )}
+            </div>
+
+            {/* Details card */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
+              <div className="mb-5 border-b border-slate-100 pb-5">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                  {category}
+                  <span className="mx-1.5 text-slate-300">·</span>
+                  {listingType}
+                  {badges.length > 0 && (
+                    <>
+                      <span className="mx-1.5 text-slate-300">·</span>
+                      {badges.map((b, i) => (
+                        <span key={b.label}>
+                          {i > 0 && <span className="mx-1.5 text-slate-300">·</span>}
+                          <span className="text-slate-500">{b.label}</span>
+                        </span>
+                      ))}
+                    </>
+                  )}
+                </p>
+
+                <h1 className="mt-2 text-xl font-semibold leading-snug tracking-tight text-slate-900 sm:text-2xl">
+                  {property.title}
+                </h1>
+
+                <div className="mt-3">
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                    Asking price
+                  </div>
+                  <div className="mt-0.5 text-xl font-semibold tabular-nums text-slate-900 sm:text-2xl">
+                    {price}
+                  </div>
+                </div>
               </div>
+
+              {/* Key specs */}
+              <div className="mb-6">
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Key Details
+                </h2>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {stats.map((stat) => (
+                    <SpecCard
+                      key={stat.label}
+                      icon={
+                        /Area|Plot|Built/i.test(stat.label)
+                          ? Square
+                          : /Room|Bed/i.test(stat.label)
+                            ? BedDouble
+                            : Building2
+                      }
+                      label={stat.label}
+                      value={stat.value}
+                    />
+                  ))}
+                  {property.amenities?.parking != null && (
+                    <SpecCard
+                      icon={Car}
+                      label="Parking"
+                      value={property.amenities.parking ? 'Available' : 'Not available'}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Highlights */}
+              {highlightItems.length > 0 && (
+                <div className="mb-6 border-b border-slate-100 pb-6">
+                  <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Business Highlights
+                  </h2>
+                  <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                    {highlightItems.map((item) => (
+                      <div key={item.label} className="rounded-lg border border-slate-100 bg-slate-50/80 px-3 py-2.5">
+                        <div className="text-[11px] font-medium text-slate-400">{item.label}</div>
+                        <div className="mt-0.5 text-[13px] font-semibold capitalize text-slate-800">
+                          {item.value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Amenities */}
+              {(activeAmenities.length > 0 || otherAmenities.length > 0) && (
+                <div className="mb-6 border-b border-slate-100 pb-6">
+                  <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Amenities
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {activeAmenities.map(({ key, label, icon: Icon }) => (
+                      <div
+                        key={key}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700"
+                      >
+                        <Icon className="h-3 w-3 text-brand-600" />
+                        {label}
+                      </div>
+                    ))}
+                    {otherAmenities.map((label) => (
+                      <div
+                        key={label}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700"
+                      >
+                        <CheckCircle className="h-3 w-3 text-brand-600" />
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Description */}
               <div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-6">Detailed Description</h3>
-                <div className="prose prose-lg max-w-none">
-                  <p className="text-slate-700 leading-relaxed text-lg">{property.description}</p>
-                </div>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  About This Business
+                </h2>
+                <p className="whitespace-pre-line text-sm leading-relaxed text-slate-600">
+                  {property.description || 'No description provided for this listing.'}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Sidebar - Contact Card */}
+          {/* Sidebar */}
           <div>
-            <div className="sticky top-24 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div className="sticky top-24 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               {!showEnquiryForm ? (
-                <div className="p-8">
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-slate-900 mb-2">Schedule a Viewing</h3>
-                    <p className="text-slate-600">Experience this premium property firsthand</p>
-                  </div>
-
-                  <button
-                    onClick={handleScheduleVisit}
-                    className="w-full group relative bg-gradient-to-r from-amber-600 to-amber-700 text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 mb-4 overflow-hidden"
-                  >
-                    <span className="relative z-10 flex items-center justify-center gap-3">
-                      <Calendar className="w-5 h-5" />
-                      Schedule Site Visit
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-amber-700 to-amber-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </button>
-
-                  <button
-                    onClick={() => setShowEnquiryForm(true)}
-                    className="w-full bg-white border-2 border-amber-500 text-amber-600 py-4 rounded-xl font-bold text-lg hover:bg-amber-50 transition-all mb-4 flex items-center justify-center gap-3"
-                  >
-                    <MessageSquare className="w-5 h-5" />
-                    Send Enquiry
-                  </button>
-
-                  <div className="grid grid-cols-2 gap-3 mb-8">
-                    <button className="py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      Call Now
-                    </button>
-                    <button className="py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      WhatsApp
-                    </button>
-                  </div>
-
-                  {/* Property Info */}
-                  <div className="mt-8 pt-8 border-t border-slate-200 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Eye className="w-5 h-5 text-slate-500" />
-                        <span className="text-slate-600">Views</span>
-                      </div>
-                      <span className="font-bold text-slate-900">{formatNumber(property.views || property.viewCount || 0)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Calendar className="w-5 h-5 text-slate-500" />
-                        <span className="text-slate-600">Listed</span>
-                      </div>
-                      <span className="font-bold text-slate-900">{getDaysAgo(property.createdAt)}</span>
-                    </div>
-                    </div> 
-                  <div className="mt-8 p-6 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl text-white">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Shield className="w-6 h-6 text-amber-400" />
-                      <span className="font-bold">Premium Support</span>
-                    </div>
-                    <p className="text-sm text-slate-300 mb-4">
-                      Get dedicated assistance from our premium concierge team for this property.
+                <div className="p-4 sm:p-5">
+                  <div className="mb-4">
+                    <h3 className="text-[15px] font-semibold text-slate-900">
+                      Interested in this business?
+                    </h3>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      Connect securely with the verified seller
                     </p>
-                    <button className="w-full py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-sm font-semibold hover:bg-white/20 transition-colors">
-                      Request Concierge
-                    </button>
+                  </div>
+
+                  <div className="mb-4 rounded-lg border border-slate-100 bg-slate-50/80 px-3.5 py-3">
+                    <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                      Asking price
+                    </div>
+                    <div className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">
+                      {price}
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-slate-500">{listingType}</div>
+                  </div>
+
+                  {error && (
+                    <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                      {error}
+                    </div>
+                  )}
+
+                  {!user ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={requireLogin}
+                        disabled={isSold}
+                        className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-gradient py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <LogIn className="h-3.5 w-3.5" />
+                        {isSold ? 'Sold — Enquiries Closed' : 'Login to Connect'}
+                      </button>
+                      {!isSold && (
+                        <p className="mb-5 text-center text-[11px] text-slate-500">
+                          Sign in so we can track your enquiry status in My Enquiries.
+                        </p>
+                      )}
+                    </>
+                  ) : isSold ? (
+                    <div className="mb-5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
+                      This listing is marked as <span className="font-semibold">Sold</span>. You
+                      cannot send new enquiries. Browse other available businesses instead.
+                    </div>
+                  ) : isOwnListing ? (
+                    <div className="mb-5 space-y-2">
+                      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-900">
+                        This is your listing. You cannot send an enquiry on your own business.
+                      </div>
+                      <Link
+                        to="/seller/listings"
+                        className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-gradient py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-95"
+                      >
+                        <LayoutDashboard className="h-3.5 w-3.5" />
+                        Seller Dashboard
+                      </Link>
+                    </div>
+                  ) : isAdmin ? (
+                    <div className="mb-5 space-y-2">
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
+                        You are signed in as admin. Enquiries are for buyers and sellers only.
+                      </div>
+                      <Link
+                        to={`/admin/listings/${id}/edit`}
+                        state={{ from: '/admin/listings' }}
+                        className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-gradient py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-95"
+                      >
+                        <LayoutDashboard className="h-3.5 w-3.5" />
+                        Manage Listing
+                      </Link>
+                    </div>
+                  ) : !canEnquire ? (
+                    <div className="mb-5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
+                      Buyer and seller accounts can send enquiries and track their status. You are
+                      signed in as{' '}
+                      <span className="font-semibold text-slate-800">{user.role}</span>.
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={openEnquiryForm}
+                        className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-gradient py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-95"
+                      >
+                        <Handshake className="h-3.5 w-3.5" />
+                        Connect with Seller
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={openEnquiryForm}
+                        className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-500 hover:text-brand-700"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        Send Enquiry
+                      </button>
+
+                      <div className="mb-5 grid grid-cols-2 gap-2">
+                        {callHref ? (
+                          <a
+                            href={callHref}
+                            onClick={handleContactClick}
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-slate-50 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100"
+                          >
+                            <Phone className="h-3.5 w-3.5" />
+                            Call
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-slate-50 py-2 text-xs font-medium text-slate-400"
+                          >
+                            <Phone className="h-3.5 w-3.5" />
+                            Call
+                          </button>
+                        )}
+                        {whatsappHref ? (
+                          <a
+                            href={whatsappHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={handleContactClick}
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-slate-50 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100"
+                          >
+                            <Mail className="h-3.5 w-3.5" />
+                            WhatsApp
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled
+                            className="flex items-center justify-center gap-1.5 rounded-lg bg-slate-50 py-2 text-xs font-medium text-slate-400"
+                          >
+                            <Mail className="h-3.5 w-3.5" />
+                            WhatsApp
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  <div className="space-y-2.5 border-t border-slate-100 pt-4 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-slate-400">
+                        <Calendar className="h-3.5 w-3.5" />
+                        Listed
+                      </span>
+                      <span className="font-medium text-slate-700">
+                        {getDaysAgo(property.createdAt)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-slate-400">
+                        <Building2 className="h-3.5 w-3.5" />
+                        Category
+                      </span>
+                      <span className="font-medium text-slate-700">{property.propertyType}</span>
+                    </div>
+                    {property.propertyDetails?.facingDirection && (
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-slate-400">
+                          <Compass className="h-3.5 w-3.5" />
+                          Facing
+                        </span>
+                        <span className="font-medium text-slate-700">
+                          {property.propertyDetails.facingDirection}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 rounded-lg bg-brand-gradient p-3.5 text-white">
+                    <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold">
+                      <ShieldCheck className="h-3.5 w-3.5 text-brand-200" />
+                      Verified & Confidential
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-brand-100">
+                      Every listing on Udyam Mittar is manually verified. Your enquiry stays private
+                      until you choose to connect.
+                    </p>
+                    {canEnquire && (
+                      <Link
+                        to={enquiriesPath}
+                        className="mt-3 block rounded-md bg-white/10 py-1.5 text-center text-[11px] font-semibold transition-colors hover:bg-white/20"
+                      >
+                        View My Enquiries
+                      </Link>
+                    )}
+                    <Link
+                      to="/services/consultation"
+                      className="mt-2 block rounded-md bg-white/10 py-1.5 text-center text-[11px] font-semibold transition-colors hover:bg-white/20"
+                    >
+                      Get Expert Guidance
+                    </Link>
                   </div>
                 </div>
               ) : (
-                <div className="p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold text-slate-900">Enquiry Form</h3>
+                <div className="p-4 sm:p-5">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-[15px] font-semibold text-slate-900">Send Enquiry</h3>
                     <button
+                      type="button"
                       onClick={() => setShowEnquiryForm(false)}
-                      className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                      className="rounded-md p-1.5 transition-colors hover:bg-slate-100"
                     >
-                      <ArrowLeft className="w-5 h-5 text-slate-600" />
+                      <ArrowLeft className="h-4 w-4 text-slate-500" />
                     </button>
                   </div>
-                  
-                  <form onSubmit={handleSubmitEnquiry} className="space-y-6">
+
+                  {error && (
+                    <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                      {error}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSubmitEnquiry} className="space-y-3">
                     <div>
-                      <label className="block text-sm font-bold text-slate-900 mb-2">Full Name *</label>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                        Full Name *
+                      </label>
                       <input
                         type="text"
                         name="name"
@@ -588,11 +885,13 @@ export const PropertyDetailPage = () => {
                         onChange={handleFormChange}
                         placeholder="Enter your full name"
                         required
-                        className="w-full px-4 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all bg-white"
+                        className={inputClass}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-slate-900 mb-2">Email Address *</label>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                        Email Address *
+                      </label>
                       <input
                         type="email"
                         name="email"
@@ -600,11 +899,13 @@ export const PropertyDetailPage = () => {
                         onChange={handleFormChange}
                         placeholder="your.email@domain.com"
                         required
-                        className="w-full px-4 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all bg-white"
+                        className={inputClass}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-slate-900 mb-2">Phone Number *</label>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                        Phone Number *
+                      </label>
                       <input
                         type="tel"
                         name="phone"
@@ -612,44 +913,44 @@ export const PropertyDetailPage = () => {
                         onChange={handleFormChange}
                         placeholder="+91 98765 43210"
                         required
-                        className="w-full px-4 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all bg-white"
+                        className={inputClass}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-slate-900 mb-2">Your Message</label>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                        Your Message
+                      </label>
                       <textarea
                         name="message"
                         value={formData.message}
                         onChange={handleFormChange}
-                        placeholder="Tell us about your requirements, preferred timeline, etc."
+                        placeholder="Tell us about your interest, budget, or questions..."
                         rows="4"
-                        className="w-full px-4 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all bg-white resize-none"
-                      ></textarea>
+                        className={`${inputClass} resize-none`}
+                      />
                     </div>
-                    <div className="flex gap-3">
-                      <button
-                        type="submit"
-                        disabled={submitting}
-                        className="flex-1 group relative bg-gradient-to-r from-amber-600 to-amber-700 text-white py-3.5 rounded-xl font-bold hover:shadow-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
-                      >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          {submitting ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                              <span>Submitting...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Mail className="w-5 h-5" />
-                              <span>Submit Enquiry</span>
-                            </>
-                          )}
-                        </span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-amber-700 to-amber-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      </button>
-                    </div>
-                    <p className="text-xs text-slate-500 text-center">
-                      By submitting, you agree to our Terms and Privacy Policy
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-gradient py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {submitting ? (
+                        <>
+                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          <Handshake className="h-3.5 w-3.5" />
+                          Submit Enquiry
+                        </>
+                      )}
+                    </button>
+                    <p className="text-center text-[11px] text-slate-500">
+                      You can track this enquiry anytime under{' '}
+                      <Link to={enquiriesPath} className="font-semibold text-brand-700 hover:underline">
+                        My Enquiries
+                      </Link>
                     </p>
                   </form>
                 </div>
@@ -661,3 +962,13 @@ export const PropertyDetailPage = () => {
     </div>
   );
 };
+
+const SpecCard = ({ icon: Icon, label, value }) => (
+  <div className="rounded-lg border border-slate-100 bg-slate-50/80 px-3 py-2.5">
+    <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+      <Icon className="h-3 w-3" />
+      {label}
+    </div>
+    <div className="mt-0.5 text-[13px] font-semibold capitalize text-slate-800">{value}</div>
+  </div>
+);

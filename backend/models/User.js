@@ -34,6 +34,24 @@ const UserSchema = new mongoose.Schema(
       enum: ['user', 'seller', 'admin'],
       default: 'user',
     },
+    // Seller-only profile details
+    companyName: {
+      type: String,
+      trim: true,
+    },
+    companyDescription: String,
+    businessType: String,
+    officeAddress: String,
+    onboardedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Property',
+      },
+    ],
     isActive: {
       type: Boolean,
       default: true,

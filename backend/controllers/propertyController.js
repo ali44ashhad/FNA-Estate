@@ -1,5 +1,6 @@
 const Property = require('../models/Property');
 const Enquiry = require('../models/Enquiry');
+const User = require('../models/User');
 
 // Get all approved properties (for public view)
 exports.getApprovedProperties = async (req, res) => {
@@ -132,10 +133,45 @@ exports.getPropertyDetails = async (req, res) => {
   }
 };
 
-// Create property listing (Seller)
+// Create property listing (Seller or Admin)
 exports.createProperty = async (req, res) => {
   try {
-    const { title, description, propertyType, listingType, location, pricing, propertyDetails, amenities, media } = req.body;
+    const {
+      title,
+      description,
+      propertyType,
+      listingType,
+      location,
+      pricing,
+      propertyDetails,
+      financials,
+      businessDetails,
+      amenities,
+      media,
+      sellerId,
+      publishNow,
+      isVerified,
+      isPremium,
+      isHot,
+    } = req.body;
+
+    const isAdmin = req.user.role === 'admin';
+
+    // Admin may assign listing to a seller; otherwise owner is the logged-in user
+    let ownerId = req.user.id;
+    if (isAdmin && sellerId) {
+      const User = require('../models/User');
+      const seller = await User.findOne({ _id: sellerId, role: 'seller' });
+      if (!seller) {
+        return res.status(400).json({ message: 'Selected seller not found' });
+      }
+      ownerId = seller._id.toString();
+    }
+
+    const status =
+      isAdmin && publishNow !== false && publishNow !== 'false'
+        ? 'Approved'
+        : 'Pending Approval';
 
     const property = new Property({
       title,
@@ -145,20 +181,31 @@ exports.createProperty = async (req, res) => {
       location,
       pricing: {
         ...pricing,
-        finalPrice: pricing.basePrice,
+        finalPrice: pricing.finalPrice ?? pricing.basePrice,
       },
       propertyDetails,
+      financials,
+      businessDetails,
       amenities,
       media,
-      createdBy: req.user.id,
-      status: 'Pending Approval',
+      createdBy: ownerId,
+      status,
+      isVerified: isAdmin ? isVerified !== false && isVerified !== 'false' : true,
+      isPremium: isAdmin ? Boolean(isPremium) : false,
+      isHot: isAdmin ? Boolean(isHot) : false,
+      ...(status === 'Approved' && isAdmin
+        ? { approvedBy: req.user.id }
+        : {}),
     });
 
     await property.save();
 
     res.status(201).json({
       success: true,
-      message: 'Property listing created successfully and sent for approval',
+      message:
+        status === 'Approved'
+          ? 'Listing created and published successfully'
+          : 'Property listing created successfully and sent for approval',
       property,
     });
   } catch (error) {
@@ -169,19 +216,36 @@ exports.createProperty = async (req, res) => {
 // Get seller's properties
 exports.getSellerProperties = async (req, res) => {
   try {
-    const properties = await Property.find({ createdBy: req.user.id }).populate('createdBy', 'name');
+    const properties = await Property.find({ createdBy: req.user.id })
+      .populate('createdBy', 'name')
+      .lean();
+
+    // How many buyers have shortlisted each listing
+    const savedCounts = await User.aggregate([
+      { $unwind: '$wishlist' },
+      { $match: { wishlist: { $in: properties.map((p) => p._id) } } },
+      { $group: { _id: '$wishlist', count: { $sum: 1 } } },
+    ]);
+
+    const countByProperty = savedCounts.reduce((acc, row) => {
+      acc[row._id.toString()] = row.count;
+      return acc;
+    }, {});
 
     res.status(200).json({
       success: true,
       count: properties.length,
-      properties,
+      properties: properties.map((property) => ({
+        ...property,
+        savedCount: countByProperty[property._id.toString()] || 0,
+      })),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Edit property (Seller - only draft or rejected)
+// Edit property (Seller - only rejected listings can be resubmitted)
 exports.editProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
@@ -194,8 +258,8 @@ exports.editProperty = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to edit this property' });
     }
 
-    if (!['Draft', 'Rejected'].includes(property.status)) {
-      return res.status(400).json({ message: 'Can only edit draft or rejected listings' });
+    if (property.status !== 'Rejected') {
+      return res.status(400).json({ message: 'Can only edit rejected listings' });
     }
 
     const updates = req.body;

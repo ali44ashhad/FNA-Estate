@@ -13,7 +13,18 @@ const PropertySchema = new mongoose.Schema(
     },
     propertyType: {
       type: String,
-      enum: ['Factory', 'Warehouse', 'Office', 'Shop', 'Hotel', 'Industrial', 'Cafe', 'Restaurant', 'Pg', 'Running Business'],
+      enum: [
+        'Factory',
+        'Warehouse',
+        'Office',
+        'Shop',
+        'Hotel',
+        'Industrial',
+        'Cafe',
+        'Restaurant',
+        'Pg',
+        'Running Business',
+      ],
       required: true,
     },
     listingType: {
@@ -22,26 +33,11 @@ const PropertySchema = new mongoose.Schema(
       default: 'Sale',
     },
     location: {
-      country: {
-        type: String,
-        required: true,
-      },
-      state: {
-        type: String,
-        required: true,
-      },
-      city: {
-        type: String,
-        required: true,
-      },
-      locality: {
-        type: String,
-        required: true,
-      },
-      fullAddress: {
-        type: String,
-        required: true,
-      },
+      country: { type: String, required: true },
+      state: { type: String, required: true },
+      city: { type: String, required: true },
+      locality: { type: String, required: true },
+      fullAddress: { type: String, required: true },
       coordinates: {
         latitude: Number,
         longitude: Number,
@@ -56,36 +52,56 @@ const PropertySchema = new mongoose.Schema(
         type: Number,
         required: [true, 'Please provide a final price'],
       },
-      currency: {
-        type: String,
-        default: 'INR',
-      },
+      currency: { type: String, default: 'INR' },
       maintenanceCharges: Number,
       offers: String,
     },
+    // Shared space / premises details (category form may omit unused ones)
     propertyDetails: {
-      builtUpArea: {
-        type: Number,
-        required: true,
-      },
+      builtUpArea: Number,
       carpetArea: Number,
-      bedrooms: {
-        type: Number,
-        required: true,
-      },
-      bathrooms: {
-        type: Number,
-        required: true,
-      },
+      bedrooms: { type: Number, default: 0 },
+      bathrooms: { type: Number, default: 0 },
       floorNumber: String,
       totalFloors: String,
       furnishingStatus: {
         type: String,
-        enum: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
+        enum: ['Furnished', 'Semi-Furnished', 'Unfurnished', ''],
         default: 'Unfurnished',
       },
       ageOfProperty: String,
       facingDirection: String,
+    },
+    // Revenue / business health — shown on cards when present
+    financials: {
+      monthlySales: Number,
+      monthlyProfit: Number,
+      establishmentYear: Number,
+      staffCount: Number,
+      reasonForSale: String,
+    },
+    // Category-specific operational details
+    businessDetails: {
+      seatingCapacity: Number,
+      inventoryIncluded: Boolean,
+      roomsCount: Number,
+      bedsCount: Number,
+      genderType: {
+        type: String,
+        enum: ['Boys', 'Girls', 'Co-ed', ''],
+        default: '',
+      },
+      rentPerBed: Number,
+      occupancyPercent: Number,
+      hotelType: String,
+      workstations: Number,
+      cabins: Number,
+      powerLoadKva: Number,
+      plotArea: Number,
+      ceilingHeight: Number,
+      loadingDock: Boolean,
+      machineryIncluded: Boolean,
+      licensesIncluded: Boolean,
     },
     amenities: {
       parking: Boolean,
@@ -95,6 +111,16 @@ const PropertySchema = new mongoose.Schema(
       waterSupply: Boolean,
       gym: Boolean,
       swimmingPool: Boolean,
+      kitchen: Boolean,
+      outdoorSeating: Boolean,
+      liquorLicense: Boolean,
+      cctv: Boolean,
+      loadingBay: Boolean,
+      access24x7: Boolean,
+      ac: Boolean,
+      wifi: Boolean,
+      attachedBathroom: Boolean,
+      messFacility: Boolean,
       other: [String],
     },
     media: {
@@ -104,8 +130,21 @@ const PropertySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Draft', 'Pending Approval', 'Approved', 'Rejected'],
-      default: 'Draft',
+      enum: ['Pending Approval', 'Approved', 'Rejected', 'Sold'],
+      default: 'Pending Approval',
+    },
+    // Marketing badges — controlled by admin (not auto from price)
+    isVerified: {
+      type: Boolean,
+      default: true,
+    },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    isHot: {
+      type: Boolean,
+      default: false,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

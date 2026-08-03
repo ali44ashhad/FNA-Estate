@@ -1,275 +1,262 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import {
-  Shield,
+  ShieldCheck,
   Lock,
   Eye,
   Database,
   Users,
-  Building2,
+  Store,
   FileText,
   Mail,
   Phone,
-  MapPin,
   AlertCircle,
   CheckCircle,
   ChevronRight,
-  Award,
   Globe,
-  Cpu
 } from 'lucide-react';
 
-export const PrivacyPolicyPage = () => {
-  const sections = [
-    {
-      icon: <Shield className="w-6 h-6" />,
-      title: "1. Data Protection Commitment",
-      content: "FNAEstate Technologies Private Limited is committed to protecting your privacy and personal data in accordance with the Information Technology Act, 2000 and other applicable Indian data protection laws. We implement enterprise-grade security measures to safeguard your information.",
-      highlight: true,
-      points: [
-        "ISO 27001:2013 certified security protocols",
-        "Regular security audits and penetration testing",
-        "GDPR-compliant data handling for international clients",
-        "RERA-mandated data protection standards"
-      ]
-    },
-    {
-      icon: <Database className="w-6 h-6" />,
-      title: "2. Information We Collect",
-      content: "We collect information necessary to provide premium real estate services while maintaining the highest privacy standards. Our data collection includes:",
-      categories: [
-        {
-          title: "Personal Identification",
-          items: ["Full Name", "PAN Card Number (for transactions)", "Aadhaar Number (KYC verification)", "Contact Details", "Professional Information"]
-        },
-        {
-          title: "Property & Financial Data",
-          items: ["Property Ownership Documents", "Financial Capability Proof", "Transaction History", "Investment Preferences", "Credit Score (with consent)"]
-        },
-        {
-          title: "Technical & Usage Data",
-          items: ["IP Address & Device Information", "Location Data (with consent)", "Platform Usage Patterns", "Communication Records", "Verification Documents"]
-        }
-      ]
-    },
-    {
-      icon: <Cpu className="w-6 h-6" />,
-      title: "3. AI & Data Processing",
-      content: "We use artificial intelligence to enhance your real estate experience. Our AI systems process data to provide personalized property recommendations, market insights, and investment analytics while maintaining strict privacy controls.",
-      highlight: false,
-      points: [
-        "AI-driven property matching algorithms",
-        "Predictive market trend analysis",
-        "Automated document verification",
-        "Behavioral pattern analysis for service improvement"
-      ]
-    },
-    {
-      icon: <Building2 className="w-6 h-6" />,
-      title: "4. Property Data Handling",
-      content: "Property information undergoes our 25-point verification process. We collect and process property data with utmost confidentiality and in compliance with RERA regulations.",
-      highlight: true,
-      points: [
-        "Property documents encrypted at rest and in transit",
-        "Access limited to verified professionals",
-        "Regular audit trails for document access",
-        "Secure storage with 99.99% availability"
-      ]
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "5. Third-Party Sharing",
-      content: "We share data only with verified partners under strict contractual obligations. Data sharing occurs in these specific scenarios:",
-      points: [
-        "Banks & Financial Institutions (for loan processing)",
-        "Legal Authorities (as required by Indian law)",
-        "Verification Agencies (KYC/AML compliance)",
-        "Service Partners (with your explicit consent)",
-        "Government Authorities (RERA, Income Tax)"
-      ]
-    },
-    {
-      icon: <Lock className="w-6 h-6" />,
-      title: "6. Security Measures",
-      content: "We employ military-grade security measures to protect your data throughout its lifecycle.",
-      highlight: true,
-      categories: [
-        {
-          title: "Technical Security",
-          items: ["AES-256 Encryption", "SSL/TLS 1.3 Protocols", "Multi-factor Authentication", "Regular Security Audits", "DDoS Protection"]
-        },
-        {
-          title: "Physical Security",
-          items: ["Tier IV Data Centers", "Biometric Access Controls", "24/7 Surveillance", "Redundant Power Supply", "Fire Suppression Systems"]
-        }
-      ]
-    },
-    {
-      icon: <Eye className="w-6 h-6" />,
-      title: "7. Your Rights",
-      content: "As a user, you have specific rights regarding your personal data under Indian law:",
-      points: [
-        "Right to access your personal information",
-        "Right to rectification of inaccurate data",
-        "Right to erasure ('right to be forgotten')",
-        "Right to data portability",
-        "Right to restrict processing",
-        "Right to object to processing",
-        "Right to withdraw consent"
-      ]
-    },
-    {
-      icon: <Globe className="w-6 h-6" />,
-      title: "8. International Data Transfers",
-      content: "For our NRI clients, data may be transferred internationally under strict safeguards. We ensure compliance with international data protection standards and maintain data localization for Indian residents.",
-      highlight: true
-    },
-    {
-      icon: <FileText className="w-6 h-6" />,
-      title: "9. Data Retention",
-      content: "We retain data only as long as necessary for legal, operational, or business purposes. Standard retention periods:",
-      points: [
-        "Account Information: 7 years post-account closure",
-        "Transaction Records: 10 years (as per Indian law)",
-        "Property Documents: 10 years post-sale",
-        "Communication Records: 3 years",
-        "Marketing Data: Until consent withdrawal"
-      ]
-    },
-    {
-      icon: <AlertCircle className="w-6 h-6" />,
-      title: "10. Breach Notification",
-      content: "In the unlikely event of a data breach, we will notify affected users and relevant authorities within 72 hours, in compliance with Indian data protection regulations.",
-      highlight: true
-    }
-  ];
+const SECTIONS = [
+  {
+    icon: ShieldCheck,
+    title: '1. Our Commitment',
+    content:
+      'Udyam Mittar is committed to protecting the personal information of buyers and sellers who use our Tricity business exchange platform. We handle data carefully under applicable Indian laws, including the Information Technology Act, 2000 and related rules, and we aim to collect only what we need to run the service.',
+    points: [
+      'We do not sell your personal data',
+      'Access to account and enquiry data is limited to authorised use',
+      'You can contact us to ask about or update your information',
+      'See also our Cookie Policy and GDPR page for related details',
+    ],
+  },
+  {
+    icon: Database,
+    title: '2. Information We Collect',
+    content:
+      'Depending on how you use Udyam Mittar, we may collect:',
+    categories: [
+      {
+        title: 'Account & contact',
+        items: [
+          'Name, email and phone number',
+          'Role (user / seller / admin)',
+          'Login and authentication details',
+          'Messages and enquiry form submissions',
+        ],
+      },
+      {
+        title: 'Business listing data',
+        items: [
+          'Business title, category and location',
+          'Asking price and listing description',
+          'Images and other media you upload',
+          'Optional business details provided by sellers',
+        ],
+      },
+      {
+        title: 'Technical & usage',
+        items: [
+          'IP address and device/browser type',
+          'Pages visited and search filters used',
+          'Cookies and similar technologies',
+          'Basic logs for security and troubleshooting',
+        ],
+      },
+    ],
+  },
+  {
+    icon: Store,
+    title: '3. How We Use Information',
+    content: 'We use personal data to:',
+    points: [
+      'Create and manage user accounts',
+      'Publish and manage business listings',
+      'Connect buyers and sellers through enquiries',
+      'Improve search, filters and platform performance',
+      'Send service-related notices (and marketing only where allowed)',
+      'Prevent fraud, abuse and security incidents',
+      'Comply with legal obligations',
+    ],
+  },
+  {
+    icon: Users,
+    title: '4. Sharing With Others',
+    content:
+      'We share data only when needed to operate the platform or when required by law. Typical cases include:',
+    points: [
+      'Sellers receiving buyer enquiry details you submit',
+      'Service providers who host or help run the platform (under confidentiality)',
+      'Lending or legal partners you ask us to introduce you to',
+      'Authorities when disclosure is legally required',
+    ],
+  },
+  {
+    icon: Lock,
+    title: '5. Security',
+    content:
+      'We use reasonable technical and organisational measures to protect personal data, such as HTTPS in transit, access controls for admin tools, and careful handling of credentials. No online service can guarantee absolute security; please keep your password private and tell us if you suspect unauthorised access.',
+  },
+  {
+    icon: Eye,
+    title: '6. Your Rights',
+    content: 'Subject to applicable law, you may request to:',
+    points: [
+      'Access the personal data we hold about you',
+      'Correct inaccurate information',
+      'Delete your account or certain data (where we are not required to keep it)',
+      'Withdraw consent for optional processing such as marketing',
+      'Ask questions about how your data is used',
+    ],
+  },
+  {
+    icon: Globe,
+    title: '7. Location of Processing',
+    content:
+      'Udyam Mittar primarily serves users in Chandigarh, Mohali, Panchkula and nearby areas. Data is typically processed in India. If tools or hosting providers process data in other regions, we expect appropriate safeguards consistent with our privacy commitments.',
+  },
+  {
+    icon: FileText,
+    title: '8. Data Retention',
+    content:
+      'We keep information only as long as needed for the purposes above, including account operation, dispute handling and legal retention needs. When data is no longer required, we delete or anonymise it where practical.',
+    points: [
+      'Active account data: while your account remains open',
+      'Enquiry records: for a reasonable period to support deals and disputes',
+      'Listing archives: as needed for platform integrity and legal compliance',
+      'Marketing preferences: until you opt out or withdraw consent',
+    ],
+  },
+  {
+    icon: AlertCircle,
+    title: '9. Breach Response',
+    content:
+      'If we become aware of a personal data incident that creates a significant risk to users, we will investigate promptly and notify affected users and authorities where required by law.',
+  },
+];
 
+export const PrivacyPolicyPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
-        <title>Privacy Policy | FNAEstate - Data Protection & Privacy</title>
-        <meta name="description" content="Read FNAEstate's comprehensive privacy policy. Learn how we protect your personal data, comply with data protection laws, and ensure your privacy rights. ISO 27001 certified security." />
-        <meta name="keywords" content="privacy policy, data protection, privacy rights, data security, personal information protection, GDPR compliance, data privacy" />
-        <link rel="canonical" href="https://fnaestate.com/privacy-policy" />
-        <meta property="og:title" content="Privacy Policy | FNAEstate" />
-        <meta property="og:description" content="Read FNAEstate's comprehensive privacy policy and data protection practices." />
-        <meta property="og:url" content="https://fnaestate.com/privacy-policy" />
+        <title>Privacy Policy | Udyam Mittar</title>
+        <meta
+          name="description"
+          content="Read how Udyam Mittar collects, uses and protects personal data for buyers and sellers on our Tricity business exchange platform."
+        />
+        <meta
+          name="keywords"
+          content="privacy policy, Udyam Mittar privacy, data protection, personal data, Tricity business platform"
+        />
+        <link rel="canonical" href="https://udyammittar.com/privacy-policy" />
+        <meta property="og:title" content="Privacy Policy | Udyam Mittar" />
+        <meta
+          property="og:description"
+          content="How Udyam Mittar protects buyer and seller personal data."
+        />
+        <meta property="og:url" content="https://udyammittar.com/privacy-policy" />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Udyam Mittar" />
         <meta name="robots" content="noindex, follow" />
       </Helmet>
-      {/* Premium Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg  "></div>
-        <div className="relative max-w-6xl mx-auto px-4 py-20">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-full px-6 py-3 mb-6">
-              <Lock className="w-5 h-5 text-amber-400" />
-              <span className="text-sm font-medium">ENTERPRISE-GRADE DATA PROTECTION</span>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-                Privacy Policy
-              </span>
-            </h1>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
-              Protecting your data with military-grade security and transparency in compliance with Indian data protection laws
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-sm">
-              <div className="flex items-center gap-2 text-slate-300">
-                <FileText className="w-4 h-4" />
-                <span>Last updated: December 26, 2025</span>
-              </div>
-              <div className="h-4 w-px bg-slate-700 hidden sm:block"></div>
-              <div className="flex items-center gap-2 text-slate-300">
-                <Award className="w-4 h-4" />
-                <span>ISO 27001:2013 Certified</span>
-              </div>
-              <div className="h-4 w-px bg-slate-700 hidden sm:block"></div>
-              <div className="flex items-center gap-2 text-slate-300">
-                <Shield className="w-4 h-4" />
-                <span>GDPR Compliant for NRI Clients</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Security Badges */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-            <div className="bg-slate-800/50 rounded-xl p-4 text-center border border-slate-700">
-              <div className="text-2xl font-bold text-amber-400">AES-256</div>
-              <div className="text-xs text-slate-400">Encryption</div>
-            </div>
-            <div className="bg-slate-800/50 rounded-xl p-4 text-center border border-slate-700">
-              <div className="text-2xl font-bold text-amber-400">99.99%</div>
-              <div className="text-xs text-slate-400">Uptime SLA</div>
-            </div>
-            <div className="bg-slate-800/50 rounded-xl p-4 text-center border border-slate-700">
-              <div className="text-2xl font-bold text-amber-400">Tier IV</div>
-              <div className="text-xs text-slate-400">Data Centers</div>
-            </div>
-            <div className="bg-slate-800/50 rounded-xl p-4 text-center border border-slate-700">
-              <div className="text-2xl font-bold text-amber-400">24/7</div>
-              <div className="text-xs text-slate-400">Monitoring</div>
-            </div>
+
+      <section className="bg-brand-800 text-white">
+        <div className="mx-auto max-w-5xl px-4 py-14 text-center lg:px-8 lg:py-16">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold">
+            <Lock className="h-4 w-4" />
+            Privacy & data protection
+          </span>
+          <h1 className="mt-5 text-4xl font-extrabold lg:text-5xl">Privacy Policy</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-brand-100 lg:text-base">
+            How Udyam Mittar collects, uses and protects information when you browse listings,
+            create an account, list a business or send an enquiry.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-brand-100">
+            <span className="inline-flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Last updated: July 29, 2026
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              We do not sell personal data
+            </span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 py-16">
-        {/* Important Notice */}
-        <div className="mb-12 bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-8 shadow-lg">
+      <div className="mx-auto max-w-5xl px-4 py-12 lg:px-8 lg:py-14">
+        <div className="mb-8 rounded-2xl border border-brand-200 bg-brand-50 p-6 lg:p-8">
           <div className="flex items-start gap-4">
-            <AlertCircle className="w-8 h-8 text-amber-600 flex-shrink-0" />
+            <span className="shrink-0 rounded-lg bg-brand-gradient p-2.5 text-white">
+              <AlertCircle className="h-5 w-5" />
+            </span>
             <div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">Important Privacy Notice</h3>
-              <p className="text-slate-700 mb-4">
-                This Privacy Policy explains how FNAEstate collects, uses, discloses, and protects your personal data in compliance with Indian laws. 
-                By using our services, you consent to our data practices as described herein.
+              <h2 className="text-xl font-bold text-slate-900">Important notice</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                By using Udyam Mittar, you agree to this Privacy Policy. For cookies and tracking,
+                also read our{' '}
+                <Link
+                  to="/cookie-policy"
+                  className="font-semibold text-brand-800 underline-offset-2 hover:underline"
+                >
+                  Cookie Policy
+                </Link>
+                . GDPR-related rights for covered users are summarised on our{' '}
+                <Link
+                  to="/gdpr"
+                  className="font-semibold text-brand-800 underline-offset-2 hover:underline"
+                >
+                  GDPR page
+                </Link>
+                .
               </p>
-              <div className="flex items-center gap-3 text-sm text-slate-600">
-                <CheckCircle className="w-4 h-4" />
-                <span>We never sell your personal data to third parties</span>
-              </div>
+              <p className="mt-3 flex items-start gap-2 text-sm text-slate-600">
+                <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
+                We never sell your personal data to third parties for their marketing.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Privacy Sections */}
-        <div className="space-y-6">
-          {sections.map((section, index) => (
+        <div className="space-y-5">
+          {SECTIONS.map(({ icon: Icon, title, content, points, categories }) => (
             <div
-              key={index}
-              className={`bg-white rounded-2xl border ${section.highlight ? 'border-amber-200' : 'border-slate-200'} p-8 shadow-sm hover:shadow-lg transition-shadow`}
+              key={title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className={`p-3 rounded-xl  bg-gradient-to-r from-amber-500 to-amber-600 text-white`}>
-                  {section.icon}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">{section.title}</h3>
-                  <p className="text-slate-700 mb-6">{section.content}</p>
-                  
-                  {section.points && (
-                    <ul className="space-y-3 mt-4">
-                      {section.points.map((point, idx) => (
-                        <li key={idx} className="flex items-start gap-3 text-slate-700">
-                          <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div className="flex items-start gap-4">
+                <span className="shrink-0 rounded-lg bg-brand-gradient p-2.5 text-white">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xl font-bold text-slate-900">{title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-700">{content}</p>
+
+                  {points && (
+                    <ul className="mt-4 space-y-2">
+                      {points.map((point) => (
+                        <li key={point} className="flex items-start gap-3 text-sm text-slate-700">
+                          <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
                           <span>{point}</span>
                         </li>
                       ))}
                     </ul>
                   )}
-                  
-                  {section.categories && (
-                    <div className="grid md:grid-cols-2 gap-6 mt-6">
-                      {section.categories.map((category, catIdx) => (
-                        <div key={catIdx} className="bg-slate-50 rounded-xl p-4">
-                          <h4 className="font-bold text-slate-900 mb-3">{category.title}</h4>
+
+                  {categories && (
+                    <div className="mt-5 grid gap-4 md:grid-cols-3">
+                      {categories.map((category) => (
+                        <div key={category.title} className="rounded-xl bg-slate-50 p-4">
+                          <h4 className="mb-3 text-sm font-bold text-slate-900">
+                            {category.title}
+                          </h4>
                           <ul className="space-y-2">
-                            {category.items.map((item, itemIdx) => (
-                              <li key={itemIdx} className="text-sm text-slate-700 flex items-center gap-2">
-                                <ChevronRight className="w-3 h-3 text-amber-500" />
+                            {category.items.map((item) => (
+                              <li
+                                key={item}
+                                className="flex items-start gap-2 text-xs text-slate-700"
+                              >
+                                <ChevronRight className="mt-0.5 h-3 w-3 shrink-0 text-brand-600" />
                                 {item}
                               </li>
                             ))}
@@ -280,65 +267,55 @@ export const PrivacyPolicyPage = () => {
                   )}
                 </div>
               </div>
-              
-              {section.highlight && (
-                <div className="mt-6 pt-6 border-t border-amber-100">
-                  <div className="flex items-center gap-2 text-sm text-amber-700 font-medium">
-                    <Shield className="w-4 h-4" />
-                    <span>Enhanced security protocols applied to this section</span>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>
 
-        {/* Contact & DPO Information */}
-        <div className="mt-16 bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-10 text-white">
-          <div className="grid md:grid-cols-2 gap-8">
+        <div className="mt-8 rounded-2xl bg-brand-gradient p-8 text-white lg:p-10">
+          <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h3 className="text-3xl font-bold mb-4">Data Protection Office</h3>
-              <p className="text-slate-300 mb-6">
-                For privacy-related inquiries, data access requests, or to exercise your rights, 
-                please contact our dedicated Data Protection Officer. All requests are processed within 30 days.
+              <h3 className="text-2xl font-extrabold">Privacy requests</h3>
+              <p className="mt-3 text-sm leading-relaxed text-brand-100">
+                To access, correct or delete your data — or ask a privacy question — contact us.
+                We aim to respond within a reasonable time.
               </p>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Award className="w-5 h-5 text-amber-400" />
-                  <span className="text-sm text-slate-300">Certified Data Protection Officer</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-amber-400" />
-                  <span className="text-sm text-slate-300">24/7 Security Operations Center</span>
-                </div>
-              </div>
+              <ul className="mt-5 space-y-2 text-sm text-brand-50">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-brand-200" />
+                  Account and enquiry support
+                </li>
+                <li className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-brand-200" />
+                  Confidential handling of requests
+                </li>
+              </ul>
             </div>
-            
-            <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-              <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Mail className="w-5 h-5 text-amber-400" />
-                Contact Information
+
+            <div className="rounded-xl bg-white/10 p-6">
+              <h4 className="mb-4 flex items-center gap-2 text-lg font-bold">
+                <Mail className="h-5 w-5 text-brand-200" />
+                Contact
               </h4>
-              <div className="space-y-4">
+              <div className="space-y-4 text-sm">
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Data Protection Officer</div>
-                  <a href="mailto:dpo@FNAEstate.com" className="text-amber-400 hover:text-amber-300 font-medium">
-                    dpo@FNAEstate.com
+                  <div className="text-brand-200">Privacy email</div>
+                  <a
+                    href="mailto:privacy@udyammittar.com"
+                    className="font-semibold text-white hover:underline"
+                  >
+                    privacy@udyammittar.com
                   </a>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Privacy Helpline</div>
-                  <a href="tel:+919876543211" className="text-amber-400 hover:text-amber-300 font-medium">
-                    +91 98765 43211
+                  <div className="text-brand-200">Phone</div>
+                  <a href="tel:+919876543210" className="font-semibold text-white hover:underline">
+                    +91 98765 43210
                   </a>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-400 mb-1">Registered Office</div>
-                  <div className="text-slate-300">
-                    FNAEstate Technologies Private Limited<br />
-                    Level 42, One World Trade<br />
-                    Mumbai, Maharashtra 400001<br />
-                    CIN: U74999MH2025PTC123456
+                  <div className="text-brand-200">Service area</div>
+                  <div className="text-brand-50">
+                    Chandigarh, Mohali, Panchkula & nearby Tricity markets
                   </div>
                 </div>
               </div>
@@ -346,34 +323,19 @@ export const PrivacyPolicyPage = () => {
           </div>
         </div>
 
-        {/* Updates & Consent */}
-        <div className="mt-12">
-          <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-lg">
-            <div className="flex items-start gap-4">
-              <AlertCircle className="w-8 h-8 text-slate-700 flex-shrink-0" />
-              <div>
-                <h4 className="text-2xl font-bold text-slate-900 mb-3">Policy Updates & Your Consent</h4>
-                <p className="text-slate-700 mb-4">
-                  We may update this Privacy Policy periodically to reflect changes in our practices, 
-                  services, or legal requirements. Significant changes will be communicated via email 
-                  and platform notifications. Continued use of our services constitutes acceptance of 
-                  updated policies.
-                </p>
-                <div className="flex items-center gap-3 text-sm text-slate-600">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>You have the right to withdraw consent at any time by contacting our DPO</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Version Information */}
-        <div className="mt-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-slate-100 rounded-full px-6 py-3">
-            <FileText className="w-5 h-5 text-slate-600" />
-            <div className="text-sm text-slate-600">
-              <span className="font-semibold">Document Version:</span> 4.2 • <span className="font-semibold">Last Updated:</span> December 26, 2025
+        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+          <div className="flex items-start gap-4">
+            <span className="shrink-0 rounded-lg bg-slate-100 p-2.5 text-slate-700">
+              <AlertCircle className="h-5 w-5" />
+            </span>
+            <div>
+              <h3 className="text-xl font-bold text-slate-900">Policy updates</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                We may update this Privacy Policy when our practices or legal requirements change.
+                The “Last updated” date above will always show the current version. Continued use of
+                Udyam Mittar after an update means you accept the revised policy. You may withdraw
+                optional consents (such as marketing) at any time by contacting us.
+              </p>
             </div>
           </div>
         </div>

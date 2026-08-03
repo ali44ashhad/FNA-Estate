@@ -7,97 +7,164 @@ import {
   CheckCircle,
   Phone,
   ArrowRight,
-  DollarSign,
+  IndianRupee,
   MapPin,
-  Calendar,
-  Award
+  Store,
+  ShieldCheck,
+  Handshake,
+  Search,
 } from 'lucide-react';
 
-export const InvestmentGuidePage = () => {
-  const guides = [
-    {
-      icon: <TrendingUp className="w-8 h-8" />,
-      title: 'Market Analysis',
-      description: 'Comprehensive market trends and investment opportunities',
-      features: ['Price trends', 'ROI analysis', 'Market forecasts', 'Location insights']
-    },
-    {
-      icon: <DollarSign className="w-8 h-8" />,
-      title: 'Investment Strategies',
-      description: 'Expert strategies for property investment success',
-      features: ['Buy vs rent analysis', 'Portfolio diversification', 'Tax benefits', 'Exit strategies']
-    },
-    {
-      icon: <MapPin className="w-8 h-8" />,
-      title: 'Location Intelligence',
-      description: 'Data-driven insights on best investment locations',
-      features: ['Growth potential', 'Infrastructure analysis', 'Demand forecasting', 'Risk assessment']
-    },
-    {
-      icon: <BarChart3 className="w-8 h-8" />,
-      title: 'Financial Planning',
-      description: 'Complete financial planning for property investments',
-      features: ['Budget planning', 'Loan optimization', 'Cash flow analysis', 'Wealth building']
-    }
-  ];
+const GUIDES = [
+  {
+    icon: Search,
+    title: 'Evaluate the Business',
+    description: 'Look beyond the asking price before you commit.',
+    features: [
+      'Verify monthly sales & profit claims',
+      'Understand stock, staff and lease terms',
+      'Check licences and pending liabilities',
+      'Assess customer footfall and competition',
+    ],
+  },
+  {
+    icon: IndianRupee,
+    title: 'Plan Your Investment',
+    description: 'Decide what you can afford and how returns should look.',
+    features: [
+      'Set a realistic investment range',
+      'Factor working capital after takeover',
+      'Estimate payback period',
+      'Compare similar Tricity listings',
+    ],
+  },
+  {
+    icon: MapPin,
+    title: 'Choose the Right Location',
+    description: 'In Tricity, location often drives business performance.',
+    features: [
+      'Chandigarh sector vs Mohali industrial belts',
+      'Panchkula neighbourhood demand',
+      'Parking, visibility and catchment area',
+      'Rent escalations and lease security',
+    ],
+  },
+  {
+    icon: BarChart3,
+    title: 'Close with Confidence',
+    description: 'Move from interest to a safe handover.',
+    features: [
+      'Site visit and seller conversations',
+      'Due diligence checklist',
+      'Negotiate price and handover timeline',
+      'Document transfer of assets & accounts',
+    ],
+  },
+];
 
+const TIPS = [
+  {
+    icon: ShieldCheck,
+    title: 'Prefer verified listings',
+    text: 'Start with businesses that have been reviewed on Udyam Mittar before you invest time.',
+  },
+  {
+    icon: Store,
+    title: 'Match category to your skills',
+    text: 'A cafe, clinic, factory or PG each needs different day-to-day involvement.',
+  },
+  {
+    icon: Handshake,
+    title: 'Ask for guidance',
+    text: 'First-time buyers can talk to our team before sending enquiries to sellers.',
+  },
+];
+
+export const InvestmentGuidePage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
-        <title>Property Investment Guide | Real Estate Investment Tips | FNAEstate</title>
-        <meta name="description" content="Comprehensive property investment guide with market analysis, investment strategies, location insights, and ROI calculations. Expert tips for successful real estate investment in India." />
-        <meta name="keywords" content="property investment guide, real estate investment, property investment tips, ROI calculation, property investment strategies, real estate market analysis, property investment advice" />
-        <link rel="canonical" href="https://fnaestate.com/investment-guide" />
-        <meta property="og:title" content="Property Investment Guide | FNAEstate" />
-        <meta property="og:description" content="Comprehensive property investment guide with market analysis and investment strategies." />
-        <meta property="og:url" content="https://fnaestate.com/investment-guide" />
+        <title>Business Investment Guide | Buy Running Businesses in Tricity | Udyam Mittar</title>
+        <meta
+          name="description"
+          content="Practical guide to buying a running business in Chandigarh, Mohali and Panchkula — evaluation, investment planning, location tips and closing the deal with Udyam Mittar."
+        />
+        <meta
+          name="keywords"
+          content="buy business Tricity, business investment guide, running business for sale Chandigarh, Mohali business investment, Panchkula business buying tips"
+        />
+        <link rel="canonical" href="https://udyammittar.com/investment-guide" />
+        <meta property="og:title" content="Business Investment Guide | Udyam Mittar" />
+        <meta
+          property="og:description"
+          content="How to evaluate and buy a running business in Tricity with confidence."
+        />
+        <meta property="og:url" content="https://udyammittar.com/investment-guide" />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Udyam Mittar" />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Property Investment Guide | FNAEstate" />
-        <meta name="twitter:description" content="Comprehensive property investment guide with market analysis." />
+        <meta name="twitter:title" content="Business Investment Guide | Udyam Mittar" />
+        <meta
+          name="twitter:description"
+          content="Practical tips for buying a running business in Tricity."
+        />
       </Helmet>
-      <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-24 overflow-hidden">
-        <div className="relative max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-2 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-sm font-medium text-slate-300">INVESTMENT GUIDANCE</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Investment Guide
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-              For Smart Investors
-            </span>
+
+      <section className="bg-brand-800 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold">
+            <TrendingUp className="h-4 w-4" />
+            Buyer guidance
+          </span>
+          <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight lg:text-5xl">
+            Business Investment Guide
+            <span className="mt-2 block text-brand-200">for Tricity buyers</span>
           </h1>
-          <p className="text-xl text-slate-300 max-w-3xl leading-relaxed">
-            Expert guidance and insights to make informed property investment decisions and maximize your returns.
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-brand-100">
+            A practical checklist for evaluating running businesses in Chandigarh, Mohali and
+            Panchkula — before you connect with a seller on Udyam Mittar.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              to="/properties"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+            >
+              Browse Businesses
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/services/consultation"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Get Guidance
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-14 lg:px-8">
+        <div className="mb-10 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-900">What to focus on</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+            Four steps that help serious buyers avoid costly mistakes.
           </p>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Investment <span className="text-amber-600">Resources</span>
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {guides.map((guide, index) => (
+        <div className="grid gap-5 md:grid-cols-2">
+          {GUIDES.map(({ icon: Icon, title, description, features }) => (
             <div
-              key={index}
-              className="bg-white rounded-2xl border border-slate-200 p-8 hover:shadow-2xl hover:border-amber-200 transition-all duration-300"
+              key={title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md lg:p-8"
             >
-              <div className="inline-flex p-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 mb-6">
-                <div className="text-white">{guide.icon}</div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">{guide.title}</h3>
-              <p className="text-slate-600 mb-6">{guide.description}</p>
-              <ul className="space-y-2">
-                {guide.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-slate-700">
-                    <CheckCircle className="w-4 h-4 text-amber-600" />
+              <span className="inline-flex rounded-lg bg-brand-gradient p-3 text-white">
+                <Icon className="h-6 w-6" />
+              </span>
+              <h3 className="mt-5 text-xl font-bold text-slate-900">{title}</h3>
+              <p className="mt-2 text-sm text-slate-600">{description}</p>
+              <ul className="mt-5 space-y-2">
+                {features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700">
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -105,24 +172,52 @@ export const InvestmentGuidePage = () => {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-12 text-center text-white">
-          <h2 className="text-4xl font-bold mb-6">Start Your Investment Journey</h2>
-          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            Get personalized investment advice from our experts
-          </p>
-          <Link
-            to="/contact"
-            className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:shadow-2xl hover:scale-105 transition-all inline-flex items-center gap-3 group"
-          >
-            <Phone className="w-5 h-5" />
-            Get Investment Advice
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
+      <section className="mx-auto max-w-7xl px-4 pb-10 lg:px-8">
+        <div className="grid gap-4 md:grid-cols-3">
+          {TIPS.map(({ icon: Icon, title, text }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-brand-200 bg-brand-50 p-6"
+            >
+              <span className="inline-flex rounded-lg bg-white p-2.5 text-brand-700">
+                <Icon className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 text-lg font-bold text-slate-900">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{text}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8">
+        <div className="rounded-2xl bg-brand-gradient px-6 py-10 text-center text-white lg:px-10">
+          <h2 className="text-2xl font-extrabold lg:text-3xl">
+            Ready to explore verified businesses?
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-brand-100">
+            Browse listings across Tricity or talk to our team if you are buying a business for the
+            first time.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              to="/services/consultation"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+            >
+              <Phone className="h-4 w-4" />
+              Get Investment Guidance
+            </Link>
+            <Link
+              to="/properties"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              View Listings
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

@@ -164,7 +164,7 @@ export const FeaturesPage = () => {
               className="group relative bg-white rounded-2xl border border-slate-200 hover:border-amber-200 shadow-lg hover:shadow-2xl transition-all duration-500 p-8 hover:-translate-y-2"
             >
               <div className="absolute -top-4 left-8">
-                <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-3 rounded-xl shadow-lg">
+                <div className="bg-brand-gradient text-white p-3 rounded-xl shadow-lg">
                   {feature.icon}
                 </div>
               </div>
@@ -204,7 +204,7 @@ export const FeaturesPage = () => {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link
               to="/premium-properties"
-              className="group relative px-10 py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:from-amber-700 hover:to-amber-800 transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 flex items-center gap-3"
+              className="group relative px-10 py-4 bg-brand-gradient text-white rounded-xl font-semibold hover:bg-brand-gradient transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 flex items-center gap-3"
             >
               <Home className="w-5 h-5" />
               Explore Premium Properties

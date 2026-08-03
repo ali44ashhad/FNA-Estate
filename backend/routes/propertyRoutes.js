@@ -17,7 +17,7 @@ router.get('/', getApprovedProperties);
 router.get('/:id', getPropertyDetails);
 
 // Seller routes
-router.post('/', auth, requireRole('seller'), createProperty);
+router.post('/', auth, requireRole('seller', 'admin'), createProperty);
 router.get('/seller/my-properties', auth, requireRole('seller'), getSellerProperties);
 router.put('/:id', auth, requireRole('seller'), editProperty);
 

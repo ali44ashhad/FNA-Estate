@@ -2,121 +2,171 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
-  DollarSign,
+  IndianRupee,
   TrendingUp,
-  Shield,
+  ShieldCheck,
   CheckCircle,
   FileText,
   Phone,
-  Mail,
   ArrowRight,
-  Building2,
+  Store,
   Award,
-  Clock,
-  Users,
-  BarChart3,
-  CreditCard
+  CreditCard,
+  Handshake,
+  Building2,
 } from 'lucide-react';
 
+const SERVICES = [
+  {
+    icon: Store,
+    title: 'Business Acquisition Finance',
+    description: 'Guidance for funding the purchase of a running business in Tricity.',
+    features: [
+      'Business loan options overview',
+      'Working capital after takeover',
+      'Eligibility checklist',
+      'Bank / NBFC introduction support',
+    ],
+  },
+  {
+    icon: Building2,
+    title: 'Commercial & Asset Finance',
+    description: 'Help when the deal includes shop space, equipment or fit-outs.',
+    features: [
+      'Shop / commercial unit financing pointers',
+      'Machinery & fixture funding paths',
+      'Lease vs ownership considerations',
+      'Refinancing for expanding units',
+    ],
+  },
+  {
+    icon: CreditCard,
+    title: 'Compare & Plan EMIs',
+    description: 'Understand tenure, rates and monthly outflow before you bid.',
+    features: [
+      'Rough EMI planning',
+      'Down-payment vs loan mix',
+      'Document readiness list',
+      'Questions to ask lenders',
+    ],
+  },
+  {
+    icon: FileText,
+    title: 'Documentation Support',
+    description: 'Stay organised when lenders ask for papers on the business and buyer.',
+    features: [
+      'KYC & income proof checklist',
+      'Business financials to prepare',
+      'Seller document coordination tips',
+      'Follow-ups through closing',
+    ],
+  },
+];
+
+const BENEFITS = [
+  'Guidance tailored to buying a running business — not a home loan pitch',
+  'Help preparing what banks typically ask for',
+  'Clarity on investment range vs borrowing capacity',
+  'Support alongside verified Udyam Mittar listings',
+  'Introductions to lending partners where available',
+  'Dedicated follow-up while you evaluate deals',
+];
+
+const STEPS = [
+  { step: '01', title: 'Share your budget', text: 'Tell us your investment range and preferred category.' },
+  { step: '02', title: 'Shortlist listings', text: 'Browse verified businesses that fit your plan.' },
+  { step: '03', title: 'Plan the finance', text: 'We help you map loan vs own funds and papers needed.' },
+  { step: '04', title: 'Connect & close', text: 'Enquire with sellers while your funding path is clear.' },
+];
+
 export const LoanAssistancePage = () => {
-  const services = [
-    {
-      icon: <DollarSign className="w-8 h-8" />,
-      title: 'Home Loan Processing',
-      description: 'End-to-end assistance for home loans with competitive interest rates',
-      features: ['Pre-approved loans', 'Low interest rates', 'Quick processing', 'Flexible EMI options']
-    },
-    {
-      icon: <Building2 className="w-8 h-8" />,
-      title: 'Commercial Property Loans',
-      description: 'Specialized financing solutions for commercial real estate investments',
-      features: ['Business loans', 'Property investment loans', 'Construction finance', 'Refinancing options']
-    },
-    {
-      icon: <CreditCard className="w-8 h-8" />,
-      title: 'Loan Comparison & Analysis',
-      description: 'Compare multiple loan offers and choose the best option for your needs',
-      features: ['Multiple bank options', 'Rate comparison', 'EMI calculator', 'Expert advice']
-    },
-    {
-      icon: <Shield className="w-8 h-8" />,
-      title: 'Documentation Support',
-      description: 'Complete assistance with loan documentation and verification',
-      features: ['Document preparation', 'Verification support', 'Legal compliance', 'Fast-track processing']
-    }
-  ];
-
-  const benefits = [
-    'Pre-approved loan offers from top banks',
-    'Interest rates starting from 8.5% p.a.',
-    'Loan amount up to 90% of property value',
-    'Flexible repayment tenure up to 30 years',
-    'Zero processing fees on select loans',
-    'Dedicated relationship manager'
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
-        <title>Loan Assistance for Property Purchase | Home Loan Services | FNAEstate</title>
-        <meta name="description" content="Get expert home loan assistance with competitive interest rates, quick processing, and flexible EMI options. Pre-approved loans for residential and commercial properties. Trusted by thousands of property buyers." />
-        <meta name="keywords" content="home loan, property loan, home loan assistance, mortgage loan, pre-approved loan, low interest rate home loan, property financing, real estate loan, loan processing" />
-        <link rel="canonical" href="https://fnaestate.com/services/loan-assistance" />
-        <meta property="og:title" content="Loan Assistance for Property Purchase | FNAEstate" />
-        <meta property="og:description" content="Expert home loan assistance with competitive rates and quick processing. Pre-approved loans for residential and commercial properties." />
-        <meta property="og:url" content="https://fnaestate.com/services/loan-assistance" />
+        <title>Loan Assistance for Buying a Business | Udyam Mittar</title>
+        <meta
+          name="description"
+          content="Get loan and financing guidance for buying a running business in Chandigarh, Mohali and Panchkula. Business acquisition finance, EMI planning and documentation support from Udyam Mittar."
+        />
+        <meta
+          name="keywords"
+          content="business loan Tricity, buy business finance, business acquisition loan, commercial loan Chandigarh, Mohali business funding, Udyam Mittar loan assistance"
+        />
+        <link rel="canonical" href="https://udyammittar.com/services/loan-assistance" />
+        <meta property="og:title" content="Loan Assistance for Buying a Business | Udyam Mittar" />
+        <meta
+          property="og:description"
+          content="Financing guidance for buying running businesses in Tricity."
+        />
+        <meta property="og:url" content="https://udyammittar.com/services/loan-assistance" />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Udyam Mittar" />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Loan Assistance for Property Purchase | FNAEstate" />
-        <meta name="twitter:description" content="Expert home loan assistance with competitive rates and quick processing." />
+        <meta name="twitter:title" content="Loan Assistance | Udyam Mittar" />
+        <meta
+          name="twitter:description"
+          content="Business acquisition finance guidance for Tricity buyers."
+        />
       </Helmet>
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-24 overflow-hidden">
-        <div className="relative max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-2 rounded-lg">
-              <DollarSign className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-sm font-medium text-slate-300">PREMIUM FINANCING SOLUTIONS</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Loan Assistance
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-              Made Simple
-            </span>
-          </h1>
-          <p className="text-xl text-slate-300 max-w-3xl leading-relaxed">
-            Expert guidance and support for all your property financing needs. Get the best loan deals from top banks with minimal hassle.
-          </p>
-        </div>
-      </div>
 
-      {/* Services Grid */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Our <span className="text-amber-600">Loan Services</span>
-          </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Comprehensive financing solutions tailored to your property investment goals
+      <section className="bg-brand-800 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold">
+            <IndianRupee className="h-4 w-4" />
+            Financing guidance
+          </span>
+          <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight lg:text-5xl">
+            Loan Assistance
+            <span className="mt-2 block text-brand-200">for business buyers</span>
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-brand-100">
+            Planning to buy a cafe, shop, clinic, factory or other running business in Tricity?
+            We help you understand funding options, papers and EMI planning — alongside verified
+            listings on Udyam Mittar.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              to="/services/consultation"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+            >
+              <Phone className="h-4 w-4" />
+              Get Loan Guidance
+            </Link>
+            <Link
+              to="/properties"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Browse Businesses
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-14 lg:px-8">
+        <div className="mb-10 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-900">What we help with</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+            Support built for acquiring a running business — not a residential home loan product
+            page.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {services.map((service, index) => (
+
+        <div className="grid gap-5 md:grid-cols-2">
+          {SERVICES.map(({ icon: Icon, title, description, features }) => (
             <div
-              key={index}
-              className="bg-white rounded-2xl border border-slate-200 p-8 hover:shadow-2xl hover:border-amber-200 transition-all duration-300"
+              key={title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md lg:p-8"
             >
-              <div className="inline-flex p-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 mb-6">
-                <div className="text-white">{service.icon}</div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">{service.title}</h3>
-              <p className="text-slate-600 mb-6">{service.description}</p>
-              <ul className="space-y-2">
-                {service.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-slate-700">
-                    <CheckCircle className="w-4 h-4 text-amber-600" />
+              <span className="inline-flex rounded-lg bg-brand-gradient p-3 text-white">
+                <Icon className="h-6 w-6" />
+              </span>
+              <h3 className="mt-5 text-xl font-bold text-slate-900">{title}</h3>
+              <p className="mt-2 text-sm text-slate-600">{description}</p>
+              <ul className="mt-5 space-y-2">
+                {features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700">
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -124,59 +174,77 @@ export const LoanAssistancePage = () => {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Benefits Section */}
-      <div className="bg-gradient-to-r from-slate-50 to-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">
-            Why Choose Our <span className="text-amber-600">Loan Assistance</span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-start gap-4">
-                  <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-2 rounded-lg">
-                    <Award className="w-5 h-5 text-white" />
-                  </div>
-                  <p className="text-slate-700 font-medium">{benefit}</p>
-                </div>
+      <section className="mx-auto max-w-7xl px-4 pb-10 lg:px-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+          <h2 className="text-2xl font-extrabold text-slate-900">A simple path</h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map(({ step, title, text }) => (
+              <div key={step} className="rounded-xl bg-slate-50 p-4">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white">
+                  {step}
+                </span>
+                <h3 className="mt-3 text-sm font-bold text-slate-900">{title}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-slate-600">{text}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* CTA Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-12 text-center text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(251,191,36,0.1),transparent_50%)]"></div>
-          <div className="relative z-10">
-            <h2 className="text-4xl font-bold mb-6">
-              Ready to Get Your Loan?
-            </h2>
-            <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-              Contact our loan experts today and get pre-approved in 24 hours
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/contact"
-                className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-3 group"
-              >
-                <Phone className="w-5 h-5" />
-                Get Loan Assistance
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <a
-                href="tel:+919876543210"
-                className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all hover:scale-105"
-              >
-                Call: +91 98765 43210
-              </a>
+      <section className="mx-auto max-w-7xl px-4 pb-10 lg:px-8">
+        <h2 className="mb-6 text-center text-2xl font-extrabold text-slate-900">
+          Why buyers use this support
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {BENEFITS.map((benefit) => (
+            <div
+              key={benefit}
+              className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              <span className="shrink-0 rounded-lg bg-brand-50 p-2 text-brand-700">
+                <Award className="h-4 w-4" />
+              </span>
+              <p className="text-sm font-medium text-slate-700">{benefit}</p>
             </div>
+          ))}
+        </div>
+        <p className="mx-auto mt-6 max-w-3xl text-center text-xs text-slate-500">
+          Loan approval, interest rates and eligibility depend on the lender and your profile.
+          Udyam Mittar provides guidance and introductions — we are not a bank.
+        </p>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8">
+        <div className="rounded-2xl bg-brand-gradient px-6 py-10 text-center text-white lg:px-10">
+          <div className="mx-auto mb-4 flex justify-center">
+            <span className="rounded-xl bg-white/10 p-3">
+              <Handshake className="h-6 w-6" />
+            </span>
+          </div>
+          <h2 className="text-2xl font-extrabold lg:text-3xl">Ready to plan your funding?</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-brand-100">
+            Share your budget and the type of business you want. We&apos;ll help you plan next
+            steps while you browse verified listings.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              to="/services/consultation"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+            >
+              <Phone className="h-4 w-4" />
+              Get Loan Assistance
+            </Link>
+            <a
+              href="tel:+919876543210"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Call: +91 98765 43210
+            </a>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

@@ -7,90 +7,142 @@ import {
   CheckCircle,
   Phone,
   ArrowRight,
-  Award,
-  Shield,
-  TrendingUp
+  TrendingUp,
+  Store,
+  Search,
+  IndianRupee,
 } from 'lucide-react';
 
-export const PropertyValuationPage = () => {
-  const services = [
-    {
-      icon: <Calculator className="w-8 h-8" />,
-      title: 'Property Valuation',
-      description: 'Accurate property valuation for buying, selling, or insurance',
-      features: ['Market value assessment', 'Detailed reports', 'RERA compliant', 'Quick turnaround']
-    },
-    {
-      icon: <FileText className="w-8 h-8" />,
-      title: 'Legal Documentation',
-      description: 'Complete documentation support for property transactions',
-      features: ['Title verification', 'Document review', 'Legal compliance', 'Registration support']
-    },
-    {
-      icon: <Shield className="w-8 h-8" />,
-      title: 'Due Diligence',
-      description: 'Comprehensive property due diligence services',
-      features: ['Title search', 'Encumbrance check', 'Legal opinion', 'Risk assessment']
-    }
-  ];
+const SERVICES = [
+  {
+    icon: Calculator,
+    title: 'Business Valuation Guidance',
+    description: 'Help estimating a fair asking or offer range for a running business.',
+    features: [
+      'Sales & profit based thinking',
+      'Location and category context',
+      'Asset vs goodwill pointers',
+      'Comparable listing checks',
+    ],
+  },
+  {
+    icon: Search,
+    title: 'Pricing for Sale',
+    description: 'Set a realistic asking price before you list on Udyam Mittar.',
+    features: [
+      'Seller expectation setting',
+      'Buyer affordability lens',
+      'Negotiation room planning',
+      'Listing highlight tips',
+    ],
+  },
+  {
+    icon: TrendingUp,
+    title: 'Buyer Offer Support',
+    description: 'Evaluate whether a listed price makes sense for your goals.',
+    features: [
+      'Payback period thinking',
+      'Working capital after takeover',
+      'Risk adjustments',
+      'Questions to ask the seller',
+    ],
+  },
+];
 
+const INPUTS = [
+  'Monthly sales and profit figures (where available)',
+  'Lease rent, remaining tenure and deposit',
+  'Stock, fixtures and transferable assets',
+  'Licences, staff and customer concentration',
+  'Location, competition and category demand in Tricity',
+];
+
+export const PropertyValuationPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
-        <title>Property Valuation Services | Accurate Property Assessment | FNAEstate</title>
-        <meta name="description" content="Get accurate property valuation for buying, selling, or insurance. RERA compliant property assessment with detailed reports. Expert valuation services for residential and commercial properties." />
-        <meta name="keywords" content="property valuation, property assessment, property price evaluation, real estate valuation, property appraisal, property value, RERA valuation, property inspection" />
-        <link rel="canonical" href="https://fnaestate.com/services/valuation" />
-        <meta property="og:title" content="Property Valuation Services | FNAEstate" />
-        <meta property="og:description" content="Accurate property valuation with RERA compliant reports for buying, selling, or insurance." />
-        <meta property="og:url" content="https://fnaestate.com/services/valuation" />
+        <title>Business Valuation Guidance | Price Your Running Business | Udyam Mittar</title>
+        <meta
+          name="description"
+          content="Get business valuation guidance for buying or selling a running business in Chandigarh, Mohali and Panchkula. Pricing support based on sales, profit, lease and local market context."
+        />
+        <meta
+          name="keywords"
+          content="business valuation Tricity, price running business, sell business valuation Chandigarh, buy business price check Mohali, Udyam Mittar valuation"
+        />
+        <link rel="canonical" href="https://udyammittar.com/services/valuation" />
+        <meta property="og:title" content="Business Valuation Guidance | Udyam Mittar" />
+        <meta
+          property="og:description"
+          content="Practical pricing guidance for running businesses in Tricity."
+        />
+        <meta property="og:url" content="https://udyammittar.com/services/valuation" />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Udyam Mittar" />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Property Valuation Services | FNAEstate" />
-        <meta name="twitter:description" content="Accurate property valuation with RERA compliant reports." />
+        <meta name="twitter:title" content="Business Valuation | Udyam Mittar" />
+        <meta
+          name="twitter:description"
+          content="Guidance to price or evaluate a running business before you deal."
+        />
       </Helmet>
-      <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-24 overflow-hidden">
-        <div className="relative max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-2 rounded-lg">
-              <Calculator className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-sm font-medium text-slate-300">PROFESSIONAL VALUATION</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Property Valuation
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-              Services
-            </span>
+
+      <section className="bg-brand-800 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold">
+            <IndianRupee className="h-4 w-4" />
+            Pricing guidance
+          </span>
+          <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight lg:text-5xl">
+            Business Valuation
+            <span className="mt-2 block text-brand-200">for Tricity deals</span>
           </h1>
-          <p className="text-xl text-slate-300 max-w-3xl leading-relaxed">
-            Get accurate property valuations from certified valuers. Trusted by banks, investors, and property owners.
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-brand-100">
+            Selling or buying a cafe, shop, clinic, factory or other running business? Get practical
+            guidance on what drives price — so you list or offer with clearer expectations.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              to="/services/consultation"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+            >
+              <Phone className="h-4 w-4" />
+              Request Guidance
+            </Link>
+            <Link
+              to="/properties"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Browse Listings
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-14 lg:px-8">
+        <div className="mb-10 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-900">How we help</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+            Valuation support for running businesses — not residential property appraisal.
           </p>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Our <span className="text-amber-600">Valuation Services</span>
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {services.map((service, index) => (
+        <div className="grid gap-5 md:grid-cols-3">
+          {SERVICES.map(({ icon: Icon, title, description, features }) => (
             <div
-              key={index}
-              className="bg-white rounded-2xl border border-slate-200 p-8 hover:shadow-2xl hover:border-amber-200 transition-all duration-300"
+              key={title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="inline-flex p-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 mb-6">
-                <div className="text-white">{service.icon}</div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">{service.title}</h3>
-              <p className="text-slate-600 mb-6">{service.description}</p>
-              <ul className="space-y-2">
-                {service.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-slate-700">
-                    <CheckCircle className="w-4 h-4 text-amber-600" />
+              <span className="inline-flex rounded-lg bg-brand-gradient p-3 text-white">
+                <Icon className="h-6 w-6" />
+              </span>
+              <h3 className="mt-5 text-xl font-bold text-slate-900">{title}</h3>
+              <p className="mt-2 text-sm text-slate-600">{description}</p>
+              <ul className="mt-5 space-y-2">
+                {features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700">
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -98,24 +150,61 @@ export const PropertyValuationPage = () => {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-12 text-center text-white">
-          <h2 className="text-4xl font-bold mb-6">Get Your Property Valued</h2>
-          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            Professional valuation services with certified valuers
+      <section className="mx-auto max-w-7xl px-4 pb-10 lg:px-8">
+        <div className="rounded-2xl border border-brand-200 bg-brand-50 p-6 lg:p-8">
+          <div className="mb-4 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-brand-700" />
+            <h3 className="text-lg font-bold text-slate-900">What usually affects value</h3>
+          </div>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {INPUTS.map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm text-slate-700">
+                <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 text-xs text-slate-500">
+            Guidance is indicative and based on information you share. Final price is always between
+            buyer and seller after due diligence.
           </p>
-          <Link
-            to="/contact"
-            className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:shadow-2xl hover:scale-105 transition-all inline-flex items-center gap-3 group"
-          >
-            <Phone className="w-5 h-5" />
-            Request Valuation
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
         </div>
-      </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8">
+        <div className="rounded-2xl bg-brand-gradient px-6 py-10 text-center text-white lg:px-10">
+          <div className="mx-auto mb-4 flex justify-center">
+            <span className="rounded-xl bg-white/10 p-3">
+              <Store className="h-6 w-6" />
+            </span>
+          </div>
+          <h2 className="text-2xl font-extrabold lg:text-3xl">
+            Ready to price or evaluate a business?
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-brand-100">
+            Tell us the category, location and key numbers you have — we&apos;ll help you plan a
+            realistic range before you list or make an offer.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              to="/services/consultation"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+            >
+              <Phone className="h-4 w-4" />
+              Request Valuation Guidance
+            </Link>
+            <Link
+              to="/sell-business"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              List Your Business
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

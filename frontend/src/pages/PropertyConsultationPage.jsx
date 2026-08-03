@@ -7,111 +7,170 @@ import {
   CheckCircle,
   Phone,
   ArrowRight,
-  Home,
-  Building2,
+  Store,
   TrendingUp,
-  Award,
-  Calendar,
-  MapPin
+  MapPin,
+  Handshake,
+  ShieldCheck,
+  Search,
 } from 'lucide-react';
 
+const SERVICES = [
+  {
+    icon: Search,
+    title: 'Business Selection Guidance',
+    description: 'Help choosing the right running business for your goals and budget.',
+    features: [
+      'Category & skill fit',
+      'Budget and investment range',
+      'Comparing shortlisted listings',
+      'What to verify before you connect',
+    ],
+  },
+  {
+    icon: MapPin,
+    title: 'Tricity Market Insights',
+    description: 'Local context for Chandigarh, Mohali and Panchkula opportunities.',
+    features: [
+      'Area and catchment pointers',
+      'Category demand patterns',
+      'Lease vs ownership considerations',
+      'Competition and footfall checks',
+    ],
+  },
+  {
+    icon: TrendingUp,
+    title: 'Buyer Investment Planning',
+    description: 'Practical planning before you send enquiries or negotiate.',
+    features: [
+      'Payback and cash-flow thinking',
+      'Working capital after takeover',
+      'Risk flags to ask sellers',
+      'Funding path overview',
+    ],
+  },
+  {
+    icon: Handshake,
+    title: 'Buyer–Seller Guidance',
+    description: 'Support for both sides through a clearer deal conversation.',
+    features: [
+      'Pricing and expectation setting',
+      'Enquiry and negotiation tips',
+      'Handover checklist basics',
+      'When to bring in legal / loan help',
+    ],
+  },
+];
+
+const STATS = [
+  { label: 'Active listings', value: '450+', icon: Store },
+  { label: 'Verified sellers', value: '950+', icon: ShieldCheck },
+  { label: 'Cities covered', value: '3', icon: MapPin },
+  { label: 'Successful deals', value: '120+', icon: Handshake },
+];
+
+const WHO_FOR = [
+  {
+    title: 'First-time buyers',
+    text: 'Not sure which category fits you? We help you narrow options before you enquire.',
+  },
+  {
+    title: 'Serious investors',
+    text: 'Compare similar businesses and plan budget, funding and due diligence steps.',
+  },
+  {
+    title: 'Sellers',
+    text: 'Position your listing clearly and prepare for serious buyer conversations.',
+  },
+];
+
 export const PropertyConsultationPage = () => {
-  const services = [
-    {
-      icon: <Home className="w-8 h-8" />,
-      title: 'Property Selection Guidance',
-      description: 'Expert advice on choosing the right property based on your needs and budget',
-      features: ['Location analysis', 'Budget planning', 'Property comparison', 'Investment potential']
-    },
-    {
-      icon: <Building2 className="w-8 h-8" />,
-      title: 'Market Analysis & Insights',
-      description: 'Comprehensive market research and trend analysis for informed decisions',
-      features: ['Price trends', 'Market forecasts', 'Area development plans', 'ROI projections']
-    },
-    {
-      icon: <TrendingUp className="w-8 h-8" />,
-      title: 'Investment Strategy',
-      description: 'Personalized investment strategies tailored to your financial goals',
-      features: ['Portfolio planning', 'Risk assessment', 'Exit strategies', 'Tax optimization']
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: 'Buyer-Seller Consultation',
-      description: 'Professional consultation for both buyers and sellers',
-      features: ['Pricing strategy', 'Negotiation support', 'Transaction guidance', 'Documentation help']
-    }
-  ];
-
-  const consultationTypes = [
-    { type: 'Residential Properties', count: '500+' },
-    { type: 'Commercial Spaces', count: '200+' },
-    { type: 'Investment Properties', count: '300+' },
-    { type: 'Satisfied Clients', count: '1000+' }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
-        <title>Property Consultation Services | Expert Real Estate Advice | FNAEstate</title>
-        <meta name="description" content="Get expert property consultation services including property selection guidance, market analysis, investment advice, and location insights. Make informed property decisions with our experienced consultants." />
-        <meta name="keywords" content="property consultation, real estate consultation, property advisor, property investment advice, market analysis, property selection, real estate consultant, property guidance" />
-        <link rel="canonical" href="https://fnaestate.com/services/consultation" />
-        <meta property="og:title" content="Property Consultation Services | FNAEstate" />
-        <meta property="og:description" content="Expert property consultation including selection guidance, market analysis, and investment advice." />
-        <meta property="og:url" content="https://fnaestate.com/services/consultation" />
+        <title>Business Consultation | Expert Guidance for Buyers & Sellers | Udyam Mittar</title>
+        <meta
+          name="description"
+          content="Get expert business consultation on Udyam Mittar — help choosing a running business, Tricity market insights, investment planning and buyer–seller guidance in Chandigarh, Mohali and Panchkula."
+        />
+        <meta
+          name="keywords"
+          content="business consultation Tricity, buy business guidance, sell business advice, Chandigarh business consultant, Mohali running business help, Udyam Mittar consultation"
+        />
+        <link rel="canonical" href="https://udyammittar.com/services/consultation" />
+        <meta property="og:title" content="Business Consultation | Udyam Mittar" />
+        <meta
+          property="og:description"
+          content="Expert guidance for buying or selling running businesses in Tricity."
+        />
+        <meta property="og:url" content="https://udyammittar.com/services/consultation" />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Udyam Mittar" />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Property Consultation Services | FNAEstate" />
-        <meta name="twitter:description" content="Expert property consultation including selection guidance and market analysis." />
+        <meta name="twitter:title" content="Business Consultation | Udyam Mittar" />
+        <meta
+          name="twitter:description"
+          content="Guidance for buyers and sellers of running businesses in Tricity."
+        />
       </Helmet>
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-24 overflow-hidden">
-        <div className="relative max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-2 rounded-lg">
-              <MessageSquare className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-sm font-medium text-slate-300">EXPERT PROPERTY CONSULTATION</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Property Consultation
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-              Services
-            </span>
-          </h1>
-          <p className="text-xl text-slate-300 max-w-3xl leading-relaxed">
-            Get expert guidance from our experienced property consultants. Make informed decisions with personalized advice tailored to your needs.
-          </p>
-        </div>
-      </div>
 
-      {/* Services Grid */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Our <span className="text-amber-600">Consultation Services</span>
-          </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Comprehensive property consultation solutions for buyers, sellers, and investors
+      <section className="bg-brand-800 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold">
+            <MessageSquare className="h-4 w-4" />
+            Expert guidance
+          </span>
+          <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight lg:text-5xl">
+            Business Consultation
+            <span className="mt-2 block text-brand-200">for Tricity deals</span>
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-brand-100">
+            New to buying a running business — or preparing to sell one? Get practical guidance
+            from Udyam Mittar so you shortlist better, ask the right questions and move toward a
+            safer close.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a
+              href="tel:+919876543210"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+            >
+              <Phone className="h-4 w-4" />
+              Call for Guidance
+            </a>
+            <Link
+              to="/properties"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Browse Businesses
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-14 lg:px-8">
+        <div className="mb-10 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-900">How consultation helps</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+            Focused support for business buyers and sellers — not generic property advice.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {services.map((service, index) => (
+
+        <div className="grid gap-5 md:grid-cols-2">
+          {SERVICES.map(({ icon: Icon, title, description, features }) => (
             <div
-              key={index}
-              className="bg-white rounded-2xl border border-slate-200 p-8 hover:shadow-2xl hover:border-amber-200 transition-all duration-300"
+              key={title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md lg:p-8"
             >
-              <div className="inline-flex p-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 mb-6">
-                <div className="text-white">{service.icon}</div>
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">{service.title}</h3>
-              <p className="text-slate-600 mb-6">{service.description}</p>
-              <ul className="space-y-2">
-                {service.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-slate-700">
-                    <CheckCircle className="w-4 h-4 text-amber-600" />
+              <span className="inline-flex rounded-lg bg-brand-gradient p-3 text-white">
+                <Icon className="h-6 w-6" />
+              </span>
+              <h3 className="mt-5 text-xl font-bold text-slate-900">{title}</h3>
+              <p className="mt-2 text-sm text-slate-600">{description}</p>
+              <ul className="mt-5 space-y-2">
+                {features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm text-slate-700">
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -119,58 +178,69 @@ export const PropertyConsultationPage = () => {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Stats Section */}
-      <div className="bg-gradient-to-r from-slate-50 to-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">
-            Our <span className="text-amber-600">Track Record</span>
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {consultationTypes.map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-6 mb-4 inline-block">
-                  <Award className="w-8 h-8 text-white mx-auto" />
-                </div>
-                <div className="text-3xl font-bold text-slate-900 mb-2">{item.count}</div>
-                <div className="text-slate-600">{item.type}</div>
+      <section className="mx-auto max-w-7xl px-4 pb-10 lg:px-8">
+        <div className="grid gap-px overflow-hidden rounded-2xl bg-brand-gradient text-white sm:grid-cols-2 lg:grid-cols-4">
+          {STATS.map(({ label, value, icon: Icon }) => (
+            <div key={label} className="flex items-center gap-3 bg-brand-gradient px-6 py-6">
+              <span className="rounded-lg bg-white/10 p-2.5">
+                <Icon className="h-5 w-5" />
+              </span>
+              <div>
+                <div className="text-2xl font-extrabold leading-none">{value}</div>
+                <div className="mt-1 text-sm text-brand-100">{label}</div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-12 text-center text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(251,191,36,0.1),transparent_50%)]"></div>
-          <div className="relative z-10">
-            <h2 className="text-4xl font-bold mb-6">
-              Get Expert Property Consultation
-            </h2>
-            <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-              Schedule a free consultation with our property experts today
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/contact"
-                className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-3 group"
-              >
-                <Phone className="w-5 h-5" />
-                Book Consultation
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <a
-                href="tel:+919876543210"
-                className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all hover:scale-105"
-              >
-                Call: +91 98765 43210
-              </a>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-10 lg:px-8">
+        <h2 className="mb-6 text-center text-2xl font-extrabold text-slate-900">Who it&apos;s for</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {WHO_FOR.map(({ title, text }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-brand-200 bg-brand-50 p-6"
+            >
+              <span className="inline-flex rounded-lg bg-white p-2.5 text-brand-700">
+                <Users className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 text-lg font-bold text-slate-900">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8">
+        <div className="rounded-2xl bg-brand-gradient px-6 py-10 text-center text-white lg:px-10">
+          <h2 className="text-2xl font-extrabold lg:text-3xl">
+            Ready to talk through your options?
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-brand-100">
+            Tell us whether you are buying or selling, your budget or asking price, and the
+            category you care about. We&apos;ll help you plan the next step.
+          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a
+              href="tel:+919876543210"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+            >
+              <Phone className="h-4 w-4" />
+              Book a Call
+            </a>
+            <Link
+              to="/investment-guide"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Read Investment Guide
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

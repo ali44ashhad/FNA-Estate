@@ -1,1 +1,59 @@
 @import "tailwindcss";
+
+@theme {
+  /* Amber — matches from-amber-500 to-amber-600 */
+  --color-brand-50: #fffbeb;
+  --color-brand-100: #fef3c7;
+  --color-brand-200: #fde68a;
+  --color-brand-300: #fcd34d;
+  --color-brand-400: #fbbf24;
+  --color-brand-500: #f59e0b;
+  --color-brand-600: #d97706;
+  --color-brand-700: #b45309;
+  --color-brand-800: #92400e;
+  --color-brand-900: #78350f;
+
+  --color-navy-950: #0b1220;
+  --color-accent: #fbbf24;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 2rem auto;
+  border: 3px solid var(--color-brand-100);
+  border-top-color: var(--color-brand-600);
+  border-radius: 9999px;
+  animation: spin 0.7s linear infinite;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.18s ease-out;
+}
+
+/* Primary brand fill — amber-500 → amber-600 */
+.bg-brand-gradient {
+  background-image: linear-gradient(to right, var(--color-brand-500), var(--color-brand-600));
+}
+
+.hover\:bg-brand-gradient:hover,
+.bg-brand-gradient-hover:hover {
+  background-image: linear-gradient(to right, var(--color-brand-600), var(--color-brand-700));
+}

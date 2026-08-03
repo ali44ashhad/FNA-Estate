@@ -2,417 +2,430 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
-  Building2,
   Target,
   Eye,
-  Shield,
+  ShieldCheck,
   TrendingUp,
   Users,
   Award,
-  Globe,
-  Home,
   Heart,
-  Star,
   CheckCircle,
   Phone,
   MapPin,
   Clock,
   ArrowRight,
-  Trophy,
-  BarChart3,
-  Building
+  Handshake,
+  Store,
+  Lock,
+  Headphones,
+  Building2,
 } from 'lucide-react';
 
+const TRUST_POINTS = [
+  {
+    title: 'Verified Listings',
+    description: 'Every business is manually reviewed before it goes live on the platform.',
+    icon: ShieldCheck,
+  },
+  {
+    title: 'Local Network',
+    description: 'Deep roots in the Tricity business community across Chandigarh, Mohali & Panchkula.',
+    icon: Users,
+  },
+  {
+    title: 'Confidential Deals',
+    description: 'Your privacy comes first — enquiries stay private until you choose to connect.',
+    icon: Lock,
+  },
+  {
+    title: 'Expert Guidance',
+    description: 'Get help from people who understand local markets, valuations and deal flow.',
+    icon: Headphones,
+  },
+];
+
+const CORE_VALUES = [
+  {
+    title: 'Trust First',
+    description: 'Transparent listings and honest conversations between buyers and sellers.',
+    icon: ShieldCheck,
+  },
+  {
+    title: 'Local Focus',
+    description: 'Built for Tricity entrepreneurs — not a national property marketplace.',
+    icon: MapPin,
+  },
+  {
+    title: 'Fair Deals',
+    description: 'We help both sides find the right match and close with confidence.',
+    icon: Handshake,
+  },
+  {
+    title: 'Growth Mindset',
+    description: 'Whether you are buying or selling, the goal is lasting business growth.',
+    icon: TrendingUp,
+  },
+];
+
+const STATS = [
+  { number: '450+', label: 'Active Listings', icon: Store },
+  { number: '950+', label: 'Verified Sellers', icon: Users },
+  { number: '3', label: 'Cities Covered', icon: MapPin },
+  { number: '120+', label: 'Successful Deals', icon: Handshake },
+];
+
+const STEPS = [
+  {
+    step: '01',
+    title: 'List Your Business',
+    text: 'Share key details. We verify the listing before it reaches serious buyers.',
+  },
+  {
+    step: '02',
+    title: 'Find the Right Match',
+    text: 'Buyers explore verified opportunities that fit their goals and budget.',
+  },
+  {
+    step: '03',
+    title: 'Connect & Close',
+    text: 'Connect securely, negotiate, and complete the deal with confidence.',
+  },
+];
+
+const PRESENCE = [
+  {
+    city: 'Chandigarh',
+    focus: 'Retail, cafes, offices & hospitality',
+    note: 'Sector markets & established business hubs',
+  },
+  {
+    city: 'Mohali',
+    focus: 'Manufacturing, warehouses & services',
+    note: 'Industrial corridors and growing commercial belts',
+  },
+  {
+    city: 'Panchkula',
+    focus: 'Clinics, retail & running businesses',
+    note: 'Local neighbourhood opportunities with strong demand',
+  },
+];
+
 export const AboutUsPage = () => {
-  const leadershipTeam = [
-    { 
-      name: 'Vikram Mehta', 
-      role: 'Founder & Chairman', 
-      experience: '25+ years in luxury real estate',
-      achievement: 'Former MD at Jones Lang LaSalle',
-      specialty: 'Commercial Real Estate'
-    },
-    { 
-      name: 'Priyanka Singhania', 
-      role: 'Chief Executive Officer', 
-      experience: '15+ years in property development',
-      achievement: 'Harvard Business School Alumni',
-      specialty: 'Luxury Residential'
-    },
-    { 
-      name: 'Arjun Reddy', 
-      role: 'Chief Technology Officer', 
-      experience: '12+ years in proptech innovation',
-      achievement: 'Ex-Google, AI/ML Expert',
-      specialty: 'Digital Transformation'
-    },
-    { 
-      name: 'Neha Kapoor', 
-      role: 'Chief Operating Officer', 
-      experience: '18+ years in operations',
-      achievement: 'Six Sigma Black Belt',
-      specialty: 'Service Excellence'
-    },
-  ];
-
-  const coreValues = [
-    { 
-      title: 'Integrity First', 
-      description: 'Every transaction built on trust and transparency',
-      icon: <Shield className="w-8 h-8" />,
-      color: 'from-blue-500 to-cyan-400'
-    },
-    { 
-      title: 'Excellence Always', 
-      description: 'Setting new standards in luxury real estate service',
-      icon: <Award className="w-8 h-8" />,
-      color: 'from-amber-500 to-amber-300'
-    },
-    { 
-      title: 'Client Centricity', 
-      description: 'Personalized service for every unique requirement',
-      icon: <Heart className="w-8 h-8" />,
-      color: 'from-rose-500 to-pink-400'
-    },
-    { 
-      title: 'Innovation Driven', 
-      description: 'Leveraging technology to enhance property discovery',
-      icon: <TrendingUp className="w-8 h-8" />,
-      color: 'from-emerald-500 to-teal-400'
-    },
-  ];
-
-  const performanceStats = [
-    { number: '₹5,000Cr+', label: 'Premium Transactions', icon: <BarChart3 className="w-6 h-6" /> },
-    { number: '10,000+', label: 'Exclusive Listings', icon: <Building className="w-6 h-6" /> },
-    { number: '98.7%', label: 'Client Satisfaction', icon: <Star className="w-6 h-6" /> },
-    { number: '50+', label: 'Cities Served', icon: <Globe className="w-6 h-6" /> },
-    { number: '24/7', label: 'Premium Support', icon: <Clock className="w-6 h-6" /> },
-    { number: '250+', label: 'Expert Partners', icon: <Users className="w-6 h-6" /> },
-  ];
-
-  const certifications = [
-    'RERA Registered',
-    'ISO 27001 Certified',
-    'NAR Member',
-    'CREDAI Partner',
-    'GDPR Compliant',
-    'PCI DSS Certified'
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
+    <div className="min-h-screen bg-slate-50">
       <Helmet>
-        <title>About Us | FNAEstate - Premium Real Estate Platform</title>
-        <meta name="description" content="Learn about FNAEstate - India's premium real estate platform. 25+ years of experience, verified listings, and exceptional service. Meet our leadership team and discover our mission." />
-        <meta name="keywords" content="about FNAEstate, real estate company, property platform, real estate services, property consultants, real estate team, property company India" />
-        <link rel="canonical" href="https://fnaestate.com/about-us" />
-        <meta property="og:title" content="About Us | FNAEstate" />
-        <meta property="og:description" content="Learn about FNAEstate - India's premium real estate platform with 25+ years of experience." />
-        <meta property="og:url" content="https://fnaestate.com/about-us" />
+        <title>About Us | Udyam Mittar - Tricity Business Exchange</title>
+        <meta
+          name="description"
+          content="Udyam Mittar is Tricity's trusted platform for buying and selling running businesses in Chandigarh, Mohali and Panchkula. Verified listings, confidential deals and local expertise."
+        />
+        <meta
+          name="keywords"
+          content="about Udyam Mittar, buy business Chandigarh, sell business Mohali, Tricity business exchange, running business for sale Panchkula"
+        />
+        <link rel="canonical" href="https://udyammittar.com/about-us" />
+        <meta property="og:title" content="About Us | Udyam Mittar" />
+        <meta
+          property="og:description"
+          content="Tricity's trusted business exchange for buying and selling running businesses."
+        />
+        <meta property="og:url" content="https://udyammittar.com/about-us" />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Udyam Mittar" />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="About Us | FNAEstate" />
-        <meta name="twitter:description" content="Learn about FNAEstate - India's premium real estate platform." />
+        <meta name="twitter:title" content="About Us | Udyam Mittar" />
+        <meta
+          name="twitter:description"
+          content="Tricity's trusted business exchange for buying and selling running businesses."
+        />
       </Helmet>
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg  "></div>
-        <div className="relative max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-2 rounded-lg">
-              <Home className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-sm font-medium text-slate-300">ESTABLISHED 2018</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Redefining Luxury<br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-              Real Estate Experience
-            </span>
+
+      {/* Hero */}
+      <section className="bg-brand-800 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold">
+            <ShieldCheck className="h-4 w-4" />
+            Tricity's Trusted Business Exchange
+          </span>
+          <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight lg:text-5xl">
+            Helping Local Businesses
+            <span className="mt-2 block text-brand-200">Buy. Sell. Grow.</span>
           </h1>
-          <p className="text-xl text-slate-300 max-w-3xl leading-relaxed">
-            India's premier luxury real estate platform, connecting discerning clients with exceptional properties through unparalleled service and technological innovation.
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-brand-100 lg:text-lg">
+            Udyam Mittar connects buyers and sellers of running businesses across Chandigarh,
+            Mohali and Panchkula — with verified listings, confidential deal support and local
+            market guidance.
           </p>
-        </div>
-      </div>
-
-      {/* Our Story */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
-              <Building2 className="w-4 h-4" />
-              Our Legacy
-            </div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-6">
-              Crafting Dreams into<br />
-              <span className="text-amber-600">Luxury Realities</span>
-            </h2>
-            <div className="space-y-4 text-slate-600 leading-relaxed">
-              <p>
-                Founded in 2018 by Vikram Mehta, a veteran with 25+ years in luxury real estate, FNAEstate emerged from a vision to transform India's high-end property market. We recognized the need for a platform that combines traditional expertise with cutting-edge technology.
-              </p>
-              <p>
-                What started as a boutique advisory for ultra-high-net-worth individuals has grown into India's most trusted luxury real estate platform. We've curated exclusive partnerships with premium developers, architects, and interior designers to offer a complete ecosystem for luxury living.
-              </p>
-              <p>
-                Today, we're proud to be the preferred choice for discerning clients seeking exceptional properties, whether it's heritage bungalows in Mumbai, luxury villas in Goa, or commercial spaces in Bengaluru.
-              </p>
-            </div>
-          </div>
-          <div className="relative">
-            <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-3xl p-8 text-white">
-              <div className="text-6xl mb-6">🏆</div>
-              <h3 className="text-2xl font-bold mb-4">Industry Recognition</h3>
-              <p className="text-amber-100 mb-6">
-                Awarded 'Best Luxury Real Estate Platform' for three consecutive years at the National Real Estate Awards.
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                {['2019', '2020', '2021', '2022'].map((year) => (
-                  <div key={year} className="text-center">
-                    <div className="text-3xl font-bold">{year}</div>
-                    <div className="text-sm text-amber-200">Award Winner</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="absolute -bottom-6 -right-6 bg-gradient-to-br from-slate-800 to-slate-900 text-white p-6 rounded-2xl shadow-2xl">
-              <Trophy className="w-8 h-8 mb-3 text-amber-400" />
-              <div className="text-2xl font-bold">25+ Years</div>
-              <div className="text-sm text-slate-300">Combined Leadership Experience</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Performance Stats */}
-      <div className="bg-gradient-to-r from-slate-50 to-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">
-            Our <span className="text-amber-600">Performance</span> Metrics
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {performanceStats.map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl mb-4 group-hover:scale-110 transition-transform">
-                  <div className="text-white">
-                    {stat.icon}
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-slate-900 mb-2">{stat.number}</div>
-                <div className="text-sm text-slate-600">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Core Values */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Our <span className="text-amber-600">Core Values</span>
-          </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            The principles that guide every decision and interaction at FNAEstate
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {coreValues.map((value, index) => (
-            <div
-              key={index}
-              className="group bg-white rounded-2xl border border-slate-200 p-8 hover:shadow-2xl hover:border-amber-200 transition-all duration-300"
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              to="/properties"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
             >
-              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${value.color} mb-6 group-hover:scale-110 transition-transform`}>
-                <div className="text-white">
-                  {value.icon}
-                </div>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{value.title}</h3>
-              <p className="text-slate-600">{value.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Leadership Team */}
-      <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Executive Leadership</h2>
-            <p className="text-slate-300 max-w-2xl mx-auto">
-              Seasoned professionals with decades of experience in luxury real estate and technology
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {leadershipTeam.map((member, index) => (
-              <div
-                key={index}
-                className="group bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 hover:from-slate-700 hover:to-slate-800 transition-all duration-300 border border-slate-700 hover:border-amber-500/30"
-              >
-                <div className="w-20 h-20 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Users className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{member.name}</h3>
-                <div className="text-amber-400 font-semibold mb-4">{member.role}</div>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <Award className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-slate-300">{member.experience}</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Star className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-slate-300">{member.achievement}</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Target className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-slate-300">Specialty: {member.specialty}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              Explore Businesses
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/sell-business"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              <Store className="h-4 w-4" />
+              List Your Business
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Mission & Vision */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-3xl p-12">
-            <div className="inline-flex items-center gap-3 mb-6">
-              <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-2 rounded-lg">
-                <Target className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-sm font-semibold text-amber-700">OUR MISSION</span>
+      {/* Story */}
+      <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+        <div className="grid items-center gap-10 lg:grid-cols-2">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-800">
+              <Building2 className="h-3.5 w-3.5" />
+              Our Story
+            </span>
+            <h2 className="mt-4 text-3xl font-extrabold text-slate-900 lg:text-4xl">
+              Built for Tricity
+              <span className="block text-brand-700">entrepreneurs</span>
+            </h2>
+            <div className="mt-5 space-y-4 text-slate-600 leading-relaxed">
+              <p>
+                Buying or selling a running business should not feel like a gamble. Too often,
+                local owners struggle to find serious buyers, and buyers struggle to find verified
+                opportunities they can trust.
+              </p>
+              <p>
+                Udyam Mittar was created to fix that — a focused exchange for cafes, retail shops,
+                clinics, factories, warehouses, PGs and service businesses across Tricity.
+              </p>
+              <p>
+                We keep the process simple: verify every listing, protect privacy, and help both
+                sides connect with clarity.
+              </p>
             </div>
-            <h3 className="text-3xl font-bold text-slate-900 mb-6">
-              To Transform Luxury<br />
-              Property Discovery
-            </h3>
-            <ul className="space-y-4">
+          </div>
+
+          <div className="rounded-2xl bg-brand-gradient p-8 text-white shadow-lg">
+            <Award className="mb-4 h-10 w-10 text-brand-200" />
+            <h3 className="text-2xl font-bold">What makes us different</h3>
+            <ul className="mt-5 space-y-3">
               {[
-                'Provide unparalleled access to exclusive properties',
-                'Deliver personalized service through dedicated concierge',
-                'Ensure complete transparency in every transaction',
-                'Leverage cutting-edge technology for better insights',
-                'Maintain the highest standards of professionalism'
-              ].map((item, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-slate-700">{item}</span>
+                'Local-only focus on Chandigarh, Mohali & Panchkula',
+                'Manually verified business listings',
+                'Confidential enquiry flow for serious buyers',
+                'Guidance for first-time business buyers',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-brand-50">
+                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-200" />
+                  {item}
                 </li>
               ))}
             </ul>
           </div>
-          
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-12">
-            <div className="inline-flex items-center gap-3 mb-6">
-              <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-2 rounded-lg">
-                <Eye className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-sm font-semibold text-amber-300">OUR VISION</span>
-            </div>
-            <h3 className="text-3xl font-bold mb-6">
-              Redefining Premium<br />
-              Real Estate Standards
-            </h3>
-            <p className="text-slate-300 mb-8 leading-relaxed">
-              To become India's most trusted and technologically advanced luxury real estate platform, setting global benchmarks in service excellence and innovation while creating lasting value for our clients and partners.
-            </p>
-            <div className="flex items-center gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold">2025</div>
-                <div className="text-sm text-slate-400">Goal: Pan-India</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">2030</div>
-                <div className="text-sm text-slate-400">Global Presence</div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Certifications */}
-      <div className="bg-slate-50 py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">
-            Certifications & <span className="text-amber-600">Accreditations</span>
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {certifications.map((cert, index) => (
-              <div
-                key={index}
-                className="bg-white border border-slate-200 rounded-xl p-6 text-center hover:shadow-lg hover:border-amber-200 transition-all group"
-              >
-                <Shield className="w-8 h-8 text-amber-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-medium text-slate-700">{cert}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-12 text-center text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(251,191,36,0.1),transparent_50%)]"></div>
-          <div className="relative z-10">
-            <h2 className="text-4xl font-bold mb-6">
-              Experience Premium<br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300">
-                Real Estate Service
+      {/* Stats */}
+      <section className="mx-auto max-w-7xl px-4 pb-8 lg:px-8">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-brand-gradient text-white lg:grid-cols-4">
+          {STATS.map(({ number, label, icon: Icon }) => (
+            <div key={label} className="flex items-center gap-3 bg-brand-gradient px-6 py-6">
+              <span className="rounded-lg bg-white/10 p-2.5">
+                <Icon className="h-5 w-5" />
               </span>
-            </h2>
-            <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-              Join thousands of satisfied clients who have found their dream properties with us
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/contact"
-                className="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-3 group"
-              >
-                <Phone className="w-5 h-5" />
-                Schedule Consultation
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                to="/properties/premium"
-                className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-all hover:scale-105"
-              >
-                Browse Premium Properties
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Office Locations */}
-      <div className="max-w-7xl mx-auto px-4 pb-20">
-        <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">
-          Our <span className="text-amber-600">Presence</span>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { city: 'Mumbai', address: 'Level 42, One World Trade Center', hours: 'Mon-Sat: 9AM-8PM' },
-            { city: 'Delhi', address: 'Unit 12A, Cyber Hub, DLF Cyber City', hours: 'Mon-Sat: 9AM-8PM' },
-            { city: 'Bengaluru', address: 'Tower B, Prestige Trade Center', hours: 'Mon-Sat: 9AM-8PM' },
-          ].map((office) => (
-            <div key={office.city} className="bg-white border border-slate-200 rounded-2xl p-8 hover:shadow-xl transition-shadow">
-              <div className="flex items-center gap-3 mb-6">
-                <MapPin className="w-6 h-6 text-amber-600" />
-                <span className="text-xl font-bold text-slate-900">{office.city}</span>
-              </div>
-              <p className="text-slate-600 mb-4">{office.address}</p>
-              <div className="flex items-center gap-2 text-slate-500">
-                <Clock className="w-4 h-4" />
-                <span className="text-sm">{office.hours}</span>
+              <div>
+                <div className="text-2xl font-extrabold leading-none">{number}</div>
+                <div className="mt-1 text-sm font-medium text-brand-100">{label}</div>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
+
+      {/* Trust + Values */}
+      <section className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
+        <div className="mb-10 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-900">Why people trust us</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+            The same pillars you see on our homepage — built into every listing and every deal.
+          </p>
+        </div>
+
+        <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {TRUST_POINTS.map(({ title, description, icon: Icon }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <span className="inline-flex rounded-lg bg-brand-50 p-2.5 text-brand-700">
+                <Icon className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 text-lg font-bold text-slate-900">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{description}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mb-6 text-center">
+          <h2 className="text-3xl font-extrabold text-slate-900">Our values</h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {CORE_VALUES.map(({ title, description, icon: Icon }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+            >
+              <span className="inline-flex rounded-lg bg-brand-50 p-2.5 text-brand-700">
+                <Icon className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 text-lg font-bold text-slate-900">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="mx-auto max-w-7xl px-4 pb-12 lg:px-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-10">
+          <div className="mb-8 max-w-xl">
+            <h2 className="text-3xl font-extrabold text-slate-900">How it works</h2>
+            <p className="mt-2 text-slate-600">
+              Simple steps to buy or sell a running business in Tricity.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {STEPS.map(({ step, title, text }) => (
+              <div key={step} className="rounded-xl bg-slate-50 p-5">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white">
+                  {step}
+                </span>
+                <h3 className="mt-4 text-lg font-bold text-slate-900">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Mission & Vision */}
+      <section className="mx-auto max-w-7xl px-4 pb-12 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-brand-200 bg-brand-50 p-8 lg:p-10">
+            <div className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-800">
+              <span className="rounded-lg bg-brand-gradient p-2 text-white">
+                <Target className="h-4 w-4" />
+              </span>
+              Our Mission
+            </div>
+            <h3 className="text-2xl font-extrabold text-slate-900">
+              Make business transfer in Tricity simple, safe and local
+            </h3>
+            <ul className="mt-6 space-y-3">
+              {[
+                'Give sellers a trusted place to list running businesses',
+                'Help buyers discover verified opportunities',
+                'Keep every enquiry confidential by default',
+                'Support first-time buyers with practical guidance',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-slate-700">
+                  <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
+                  <span className="text-sm">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-2xl bg-brand-800 p-8 text-white lg:p-10">
+            <div className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-200">
+              <span className="rounded-lg bg-white/10 p-2">
+                <Eye className="h-4 w-4" />
+              </span>
+              Our Vision
+            </div>
+            <h3 className="text-2xl font-extrabold">
+              Become Tricity's default platform for business exchange
+            </h3>
+            <p className="mt-4 text-sm leading-relaxed text-brand-100">
+              From restaurants and retail to manufacturing and service businesses — a place where
+              local owners and buyers meet with clarity, trust and better outcomes.
+            </p>
+            <div className="mt-8 flex gap-8">
+              <div>
+                <div className="flex items-center gap-2 text-brand-200">
+                  <Heart className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-wide">Focus</span>
+                </div>
+                <div className="mt-1 text-lg font-bold">Local first</div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-brand-200">
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-wide">Goal</span>
+                </div>
+                <div className="mt-1 text-lg font-bold">More closed deals</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Presence */}
+      <section className="mx-auto max-w-7xl px-4 pb-12 lg:px-8">
+        <h2 className="mb-8 text-center text-3xl font-extrabold text-slate-900">
+          Where we operate
+        </h2>
+        <div className="grid gap-5 md:grid-cols-3">
+          {PRESENCE.map((office) => (
+            <div
+              key={office.city}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+            >
+              <div className="mb-4 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-brand-700" />
+                <h3 className="text-xl font-bold text-slate-900">{office.city}</h3>
+              </div>
+              <p className="text-sm font-semibold text-slate-800">{office.focus}</p>
+              <p className="mt-2 text-sm text-slate-500">{office.note}</p>
+              <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
+                <Clock className="h-3.5 w-3.5" />
+                Support: Mon–Sat, 10AM–7PM
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8">
+        <div className="rounded-2xl bg-brand-gradient px-6 py-10 text-white lg:px-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-2xl font-extrabold lg:text-3xl">
+                Ready to buy or sell a business?
+              </h2>
+              <p className="mt-2 max-w-xl text-sm text-brand-100">
+                Browse verified listings or list your business and reach serious local buyers.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/services/consultation"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-brand-800 transition-transform hover:scale-[1.02]"
+              >
+                <Phone className="h-4 w-4" />
+                Get Guidance
+              </Link>
+              <Link
+                to="/properties"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
+              >
+                Browse Businesses
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

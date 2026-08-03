@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import {
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  ShieldCheck,
+  Store,
+} from 'lucide-react';
+
+const inputClass =
+  'w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 transition focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100';
 
 export const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = location.state?.from;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -14,13 +30,14 @@ export const RegisterPage = () => {
     password: '',
     confirmPassword: '',
   });
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (error) setError('');
   };
 
@@ -45,160 +62,218 @@ export const RegisterPage = () => {
         phone: formData.phone,
         password: formData.password,
       });
-      navigate('/');
+      navigate(returnTo || '/', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center py-12 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-brand-800 px-4 py-12">
       <Helmet>
-        <title>Register | FNAEstate - Create Your Account</title>
-        <meta name="description" content="Create your FNAEstate account to access premium property listings, save favorites, get personalized recommendations, and connect with property consultants. Free registration." />
-        <meta name="keywords" content="register, sign up, create account, property account, real estate registration, user registration" />
-        <link rel="canonical" href="https://fnaestate.com/register" />
-        <meta property="og:title" content="Register | FNAEstate" />
-        <meta property="og:description" content="Create your FNAEstate account to access premium property listings." />
-        <meta property="og:url" content="https://fnaestate.com/register" />
+        <title>Create Account | Udyam Mittar</title>
+        <meta
+          name="description"
+          content="Create your Udyam Mittar buyer account to browse verified businesses, save opportunities, and send enquiries in Tricity."
+        />
+        <meta
+          name="keywords"
+          content="register, create account, Udyam Mittar signup, buy business Chandigarh, buy business Mohali"
+        />
+        <link rel="canonical" href="https://udyammittar.com/register" />
+        <meta property="og:title" content="Create Account | Udyam Mittar" />
+        <meta
+          property="og:description"
+          content="Join Udyam Mittar as a buyer to discover running businesses in Tricity."
+        />
+        <meta property="og:url" content="https://udyammittar.com/register" />
         <meta property="og:type" content="website" />
         <meta name="robots" content="noindex, follow" />
       </Helmet>
-      <div className="w-full max-w-2xl">
 
-        {/* Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+      <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="border-b border-slate-100 px-6 py-8 text-center sm:px-10">
+          <span className="mx-auto mb-4 inline-flex rounded-xl bg-brand-gradient p-3 text-white">
+            <ShieldCheck className="h-7 w-7" />
+          </span>
+          <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">Create Buyer Account</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Browse listings, save businesses, and send enquiries across Tricity
+          </p>
+        </div>
 
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-amber-500 rounded-2xl">
-              <span className="text-2xl text-white font-bold">🏠</span>
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">
-              Create Account
-            </h1>
-            <p className="text-slate-600">
-              Register to get started
-            </p>
-          </div>
-
-          {/* Error Message */}
+        <div className="px-6 py-8 sm:px-10">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-6 font-medium">
-              {error}
+            <div className="mb-5 flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-red-700">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+              <p className="text-sm font-medium">{error}</p>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-              {/* Full Name */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-2">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800">
                   Full Name
                 </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="John Doe"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition"
-                />
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    placeholder="Your full name"
+                    className={inputClass}
+                    autoComplete="name"
+                  />
+                </div>
               </div>
 
-              {/* Email */}
               <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="you@example.com"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition"
-                />
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="you@example.com"
+                    className={inputClass}
+                    autoComplete="email"
+                  />
+                </div>
               </div>
 
-              {/* Phone */}
               <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800">
                   Phone Number
                 </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  placeholder="+91 98765 43210"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition"
-                />
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    placeholder="+91 98765 43210"
+                    className={inputClass}
+                    autoComplete="tel"
+                  />
+                </div>
               </div>
 
-              {/* Password */}
               <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition"
-                />
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    placeholder="Min. 6 characters"
+                    className={`${inputClass} pr-11`}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
-              {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800">
                   Confirm Password
                 </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition"
-                />
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    placeholder="Repeat password"
+                    className={`${inputClass} pr-11`}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Submit Button */}
+            <p className="text-xs leading-relaxed text-slate-500">
+              By creating an account, you agree to our{' '}
+              <Link to="/terms-of-service" className="font-semibold text-brand-700 hover:underline">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link to="/privacy-policy" className="font-semibold text-brand-700 hover:underline">
+                Privacy Policy
+              </Link>
+              .
+            </p>
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-lg font-bold text-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-gradient py-3.5 text-base font-semibold text-white transition-colors hover:bg-brand-gradient disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  <Store className="h-4 w-4" />
+                  Create Account
+                </>
+              )}
             </button>
           </form>
 
-          {/* Sign In Link */}
-          <p className="mt-8 text-center text-slate-600">
+          <p className="mt-6 text-center text-sm text-slate-600">
             Already have an account?{' '}
             <Link
               to="/login"
-              className="text-amber-600 font-bold hover:underline"
+              state={returnTo ? { from: returnTo } : undefined}
+              className="font-bold text-brand-700 hover:underline"
             >
               Sign in
             </Link>
           </p>
+          <p className="mt-3 text-center text-sm text-slate-600">
+            Want to sell your business?{' '}
+            <Link to="/sell-business" className="font-bold text-brand-700 hover:underline">
+              Request a seller callback
+            </Link>
+          </p>
         </div>
-
- 
       </div>
     </div>
   );
